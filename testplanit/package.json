@@ -27,6 +27,7 @@
     "test": "vitest --config vitest.config.mts",
     "test:unit": "vitest --config vitest.config.mts",
     "test:cov": "vitest run --coverage --config vitest.config.mts",
+    "test:jira-contract": "vitest run --config vitest.config.mts lib/integrations/adapters/__contract__/jira-dc.contract.test.ts",
     "test:e2e": "dotenv -e .env.e2e -- playwright test --config e2e/playwright.config.ts",
     "test:e2e:ui": "dotenv -e .env.e2e -- playwright test --config e2e/playwright.config.ts --ui",
     "test:e2e:debug": "dotenv -e .env.e2e -- playwright test --config e2e/playwright.config.ts --debug",

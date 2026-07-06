@@ -75,3 +75,6 @@ demo/
 .localization-audit*
 
 .idea/testplanit/prisma/seedMcpDemo.ts
+
+# Jira DC live contract test credentials (never commit)
+.jira-it.env

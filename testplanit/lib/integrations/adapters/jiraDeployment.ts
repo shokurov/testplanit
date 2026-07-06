@@ -184,3 +184,57 @@ export function userRefField(
   if (deployment === "server") return { name: id };
   return { accountId: id };
 }
+
+/**
+ * Extract plain text from a description/comment value for Server/DC, where
+ * the REST API v2 expects a plain string (not ADF). Handles:
+ * - TipTap/ADF JSON objects ({ type: "doc", content: [...] })
+ * - HTML strings (strips tags)
+ * - Plain strings (returned as-is)
+ */
+export function contentToString(description: unknown): string {
+  if (!description) return "";
+  if (typeof description === "string") {
+    if (description.includes("<") && description.includes(">")) {
+      return description.replace(/<[^>]*>/g, "").trim();
+    }
+    return description;
+  }
+  if (typeof description === "object" && description !== null) {
+    const obj = description as { type?: string; content?: unknown[] };
+    if (obj.type === "doc" && Array.isArray(obj.content)) {
+      return extractTextFromNodes(obj.content).trim();
+    }
+    if (Array.isArray((description as { content?: unknown[] }).content)) {
+      return extractTextFromNodes(
+        (description as { content: unknown[] }).content
+      ).trim();
+    }
+  }
+  return String(description);
+}
+
+function extractTextFromNodes(nodes: unknown[]): string {
+  let text = "";
+  for (const node of nodes) {
+    if (!node || typeof node !== "object") continue;
+    const n = node as {
+      type?: string;
+      text?: string;
+      content?: unknown[];
+    };
+    if (n.type === "text" && typeof n.text === "string") {
+      text += n.text;
+    } else if (Array.isArray(n.content)) {
+      text += extractTextFromNodes(n.content);
+    }
+    if (
+      n.type === "paragraph" ||
+      n.type === "heading" ||
+      n.type === "codeBlock"
+    ) {
+      text += "\n";
+    }
+  }
+  return text;
+}

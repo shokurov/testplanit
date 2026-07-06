@@ -1,0 +1,61 @@
+{
+  "name": "call-006",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/TITP-15/comment",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "startAt": 0,
+      "maxResults": 50,
+      "total": 1,
+      "comments": [
+        {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192116/comment/618981",
+          "id": "618981",
+          "author": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
+            "name": "testplanit",
+            "key": "JIRAUSER16307",
+            "emailAddress": "testplanit@rapidsoft.ru",
+            "avatarUrls": {
+              "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
+              "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
+              "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
+              "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
+            },
+            "displayName": "TestPlanIt",
+            "active": true,
+            "timeZone": "Europe/Moscow"
+          },
+          "body": "contract comment",
+          "updateAuthor": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
+            "name": "testplanit",
+            "key": "JIRAUSER16307",
+            "emailAddress": "testplanit@rapidsoft.ru",
+            "avatarUrls": {
+              "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
+              "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
+              "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
+              "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
+            },
+            "displayName": "TestPlanIt",
+            "active": true,
+            "timeZone": "Europe/Moscow"
+          },
+          "created": "2026-07-06T15:11:26.791+0300",
+          "updated": "2026-07-06T15:11:26.791+0300"
+        }
+      ]
+    }
+  },
+  "recordedAt": "2026-07-06T12:11:26.881Z"
+}

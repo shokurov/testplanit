@@ -16,6 +16,7 @@ import {
   JiraAuthCredentials,
   JiraAuthScheme,
   JiraDeploymentType,
+  contentToString,
   pickUserId,
   resolveAuthScheme,
 } from "./jiraDeployment";
@@ -282,6 +283,19 @@ export class JiraAdapter extends BaseAdapter {
   > {
     if (this.apiKeyAuthActive && this.baseUrl) {
       // API key authentication (Cloud or Data Center)
+      if (this.deployment === "server") {
+        // DC: GET /project returns a bare array (no pagination wrapper)
+        const data = await this.makeRequest<any>(
+          this.buildUrl(`/rest/api/${this.apiVersion}/project`)
+        );
+        const projects = Array.isArray(data) ? data : [];
+        return projects.map((project: any) => ({
+          id: project.id,
+          key: project.key,
+          name: project.name,
+        }));
+      }
+      // Cloud: GET /project/search returns { values: [...] }
       const data = await this.makeRequest<any>(
         this.buildUrl(`/rest/api/${this.apiVersion}/project/search`)
       );
@@ -481,49 +495,53 @@ export class JiraAdapter extends BaseAdapter {
       ? { key: data.projectId } // It's a project key
       : { id: data.projectId }; // It's a project ID
 
-    // Convert description to ADF format
+    // Convert description to the format the deployment expects
     let descriptionField;
     if (data.description) {
-      // console.log('[JiraAdapter] Raw description:', data.description);
-
-      // Check if description is TipTap JSON
-      if (
-        typeof data.description === "object" &&
-        data.description &&
-        "type" in data.description &&
-        data.description.type === "doc"
-      ) {
-        // Direct TipTap JSON to ADF conversion
-        descriptionField = this.tiptapToAdf(data.description);
-        // console.log('[JiraAdapter] Converted ADF from TipTap:', JSON.stringify(descriptionField, null, 2));
-      } else if (
-        typeof data.description === "string" &&
-        data.description.includes("<") &&
-        data.description.includes(">")
-      ) {
-        // HTML string - use HTML to ADF converter
-        descriptionField = this.htmlToAdf(data.description);
-        // console.log('[JiraAdapter] Converted ADF from HTML:', JSON.stringify(descriptionField, null, 2));
-      } else if (typeof data.description === "string") {
-        // Plain text
-        descriptionField = {
-          type: "doc",
-          version: 1,
-          content: [
-            {
-              type: "paragraph",
-              content: [
-                {
-                  type: "text",
-                  text: data.description,
-                },
-              ],
-            },
-          ],
-        };
+      if (this.deployment === "server") {
+        // DC REST API v2 expects a plain string, not ADF
+        descriptionField = contentToString(data.description);
+      } else {
+        // Cloud REST API v3 expects ADF (Atlassian Document Format)
+        // Check if description is TipTap JSON
+        if (
+          typeof data.description === "object" &&
+          data.description &&
+          "type" in data.description &&
+          data.description.type === "doc"
+        ) {
+          // Direct TipTap JSON to ADF conversion
+          descriptionField = this.tiptapToAdf(data.description);
+        } else if (
+          typeof data.description === "string" &&
+          data.description.includes("<") &&
+          data.description.includes(">")
+        ) {
+          // HTML string - use HTML to ADF converter
+          descriptionField = this.htmlToAdf(data.description);
+        } else if (typeof data.description === "string") {
+          // Plain text
+          descriptionField = {
+            type: "doc",
+            version: 1,
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: data.description,
+                  },
+                ],
+              },
+            ],
+          };
+        }
       }
     } else {
-      descriptionField = null;
+      // DC rejects null description with "Operation value must be a string";
+      // Cloud accepts null (means "no description").
+      descriptionField = this.deployment === "server" ? "" : null;
     }
 
     // Extract reporter from customFields if present
@@ -598,39 +616,45 @@ export class JiraAdapter extends BaseAdapter {
     }
 
     if (data.description !== undefined) {
-      // Check if description is TipTap JSON
-      if (
-        typeof data.description === "object" &&
-        data.description &&
-        "type" in data.description &&
-        data.description.type === "doc"
-      ) {
-        // Direct TipTap JSON to ADF conversion
-        updatePayload.fields.description = this.tiptapToAdf(data.description);
-      } else if (
-        typeof data.description === "string" &&
-        data.description.includes("<") &&
-        data.description.includes(">")
-      ) {
-        // HTML string - use HTML to ADF converter
-        updatePayload.fields.description = this.htmlToAdf(data.description);
-      } else if (typeof data.description === "string") {
-        // Plain text
-        updatePayload.fields.description = {
-          type: "doc",
-          version: 1,
-          content: [
-            {
-              type: "paragraph",
-              content: [
-                {
-                  type: "text",
-                  text: data.description,
-                },
-              ],
-            },
-          ],
-        };
+      if (this.deployment === "server") {
+        // DC REST API v2 expects a plain string, not ADF
+        updatePayload.fields.description = contentToString(data.description);
+      } else {
+        // Cloud REST API v3 expects ADF
+        // Check if description is TipTap JSON
+        if (
+          typeof data.description === "object" &&
+          data.description &&
+          "type" in data.description &&
+          data.description.type === "doc"
+        ) {
+          // Direct TipTap JSON to ADF conversion
+          updatePayload.fields.description = this.tiptapToAdf(data.description);
+        } else if (
+          typeof data.description === "string" &&
+          data.description.includes("<") &&
+          data.description.includes(">")
+        ) {
+          // HTML string - use HTML to ADF converter
+          updatePayload.fields.description = this.htmlToAdf(data.description);
+        } else if (typeof data.description === "string") {
+          // Plain text
+          updatePayload.fields.description = {
+            type: "doc",
+            version: 1,
+            content: [
+              {
+                type: "paragraph",
+                content: [
+                  {
+                    type: "text",
+                    text: data.description,
+                  },
+                ],
+              },
+            ],
+          };
+        }
       }
     }
 
@@ -794,7 +818,12 @@ export class JiraAdapter extends BaseAdapter {
         "summary,description,status,priority,issuetype,assignee,reporter,labels,created,updated",
     });
     if (options.pageToken) {
-      params.set("nextPageToken", options.pageToken);
+      if (this.deployment === "server") {
+        // DC uses startAt for pagination
+        params.set("startAt", options.pageToken);
+      } else {
+        params.set("nextPageToken", options.pageToken);
+      }
     }
 
     // Cloud exposes the enhanced JQL endpoint /search/jql; Server/Data
@@ -836,27 +865,34 @@ export class JiraAdapter extends BaseAdapter {
   }
 
   protected async addComment(issueId: string, comment: string): Promise<void> {
+    const body =
+      this.deployment === "server"
+        ? // DC REST API v2 expects a plain string for comment body
+          { body: comment }
+        : // Cloud REST API v3 expects ADF
+          {
+            body: {
+              type: "doc",
+              version: 1,
+              content: [
+                {
+                  type: "paragraph",
+                  content: [
+                    {
+                      type: "text",
+                      text: comment,
+                    },
+                  ],
+                },
+              ],
+            },
+          };
+
     await this.makeRequest(
       this.buildUrl(`/rest/api/${this.apiVersion}/issue/${issueId}/comment`),
       {
         method: "POST",
-        body: JSON.stringify({
-          body: {
-            type: "doc",
-            version: 1,
-            content: [
-              {
-                type: "paragraph",
-                content: [
-                  {
-                    type: "text",
-                    text: comment,
-                  },
-                ],
-              },
-            ],
-          },
-        }),
+        body: JSON.stringify(body),
       }
     );
   }
@@ -1297,22 +1333,41 @@ export class JiraAdapter extends BaseAdapter {
   ): Promise<any[]> {
     try {
       // Get create issue metadata for the specific issue type
-      const url = this.buildUrl(
-        `/rest/api/${this.apiVersion}/issue/createmeta?projectKeys=${projectKey}&issuetypeIds=${issueTypeId}&expand=projects.issuetypes.fields`
-      );
+      let url: string;
+      let fieldsObj: Record<string, any> | undefined;
 
-      const metadata = await this.makeRequest<any>(url);
+      if (this.deployment === "server") {
+        // DC: GET /issue/createmeta/{key}/issuetypes/{id} returns a paginated
+        // { values: [{ fieldId, name, required, schema, ... }] } array.
+        // Convert to the same { fieldId: fieldData } shape Cloud uses.
+        url = this.buildUrl(
+          `/rest/api/${this.apiVersion}/issue/createmeta/${projectKey}/issuetypes/${issueTypeId}`
+        );
+        const metadata = await this.makeRequest<any>(url);
+        const vals = Array.isArray(metadata?.values) ? metadata.values : [];
+        fieldsObj = {};
+        for (const v of vals) {
+          if (v.fieldId) {
+            fieldsObj[v.fieldId] = v;
+          }
+        }
+      } else {
+        // Cloud: GET /issue/createmeta?projectKeys=...&issuetypeIds=...&expand=...
+        url = this.buildUrl(
+          `/rest/api/${this.apiVersion}/issue/createmeta?projectKeys=${projectKey}&issuetypeIds=${issueTypeId}&expand=projects.issuetypes.fields`
+        );
+        const metadata = await this.makeRequest<any>(url);
+        const project = metadata.projects?.[0];
+        const issueType = project?.issuetypes?.[0];
+        fieldsObj = issueType?.fields;
+      }
 
-      // Extract fields from the response
-      const project = metadata.projects?.[0];
-      const issueType = project?.issuetypes?.[0];
-
-      if (!issueType?.fields) {
+      if (!fieldsObj) {
         return [];
       }
 
       // Convert fields object to array and filter out system fields we handle separately
-      const fields = Object.entries(issueType.fields)
+      const fields = Object.entries(fieldsObj)
         .filter(([key]) => {
           // Exclude fields we already handle in the UI
           const excludedFields = [
@@ -1831,7 +1886,7 @@ export class JiraAdapter extends BaseAdapter {
         try {
           // Try the user/search endpoint with email
           const emailSearchUrl = this.buildUrl(
-            `/rest/api/${this.apiVersion}/user/search?query=${encodeURIComponent(query)}&startAt=${startAt}&maxResults=${maxResults}`
+            `/rest/api/${this.apiVersion}/user/search?${this.deployment === "server" ? "username" : "query"}=${encodeURIComponent(query)}&startAt=${startAt}&maxResults=${maxResults}`
           );
           // console.log(`[JiraAdapter.searchUsers] Trying email search: ${emailSearchUrl}`);
           const emailUsers = await this.makeRequest<any[]>(emailSearchUrl);
@@ -1862,7 +1917,7 @@ export class JiraAdapter extends BaseAdapter {
         endpoint = `/rest/api/${this.apiVersion}/user/assignable/search?project=${projectKey}&query=${encodeURIComponent(query)}&startAt=${startAt}&maxResults=${maxResults}`;
       } else {
         // General user search
-        endpoint = `/rest/api/${this.apiVersion}/user/search?query=${encodeURIComponent(query)}&startAt=${startAt}&maxResults=${maxResults}`;
+        endpoint = `/rest/api/${this.apiVersion}/user/search?${this.deployment === "server" ? "username" : "query"}=${encodeURIComponent(query)}&startAt=${startAt}&maxResults=${maxResults}`;
       }
 
       // console.log(`[JiraAdapter.searchUsers] Using general endpoint: ${endpoint}`);

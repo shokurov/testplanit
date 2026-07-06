@@ -47,5 +47,5 @@
     "vitest.setup.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "test-results"]
+  "exclude": ["node_modules", "test-results", "**/__contract__/**"]
 }
