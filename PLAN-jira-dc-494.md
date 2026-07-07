@@ -1,10 +1,20 @@
 # Revised Plan: Jira Server / Data Center support (issue #494, PR #495)
 
-**Status:** revision of the original plan after code review of PR #495
-(branch `fix/jira-datacenter-494`, head `3e8f45db` at time of writing).
-The original plan's architecture stands; this revision fixes its two
-load-bearing simplifications and replaces the mock-first test strategy
-with a live-instance contract suite.
+**Status:** second revision. The first revision (after code review of
+PR #495, head `3e8f45db`) fixed the original plan's two load-bearing
+simplifications and replaced the mock-first test strategy with a
+live-instance contract suite. Iteration 3 (head `502d8880`) executed
+Phases A–C against a live Jira DC instance — the 10-item worklist below
+is now closed and the DC contract suite is green (29/29, both auth
+schemes).
+
+**This revision adds Phase E: a Jira Cloud sandbox, a Cloud contract
+suite, and a full two-deployment regression** — the last functional
+unknown is Cloud-side, not DC-side (iteration 3 changed Cloud's
+assignee write shape `{ id }` → `{ accountId }` and touched every
+shared write path, all verified live on DC only). It also hardens the
+contract-suite harness against a live-discovered footgun (Phase A
+amendment below).
 
 Review found 10 verified defects (8 confirmed, 2 plausible) plus 3
 cleanup items — all listed in the worklist below.
@@ -164,6 +174,22 @@ auth schemes. Never runs in CI.
   with a **required custom field** and a **user-picker custom field**
   (findings #6/#7 are not reproducible without them).
 
+**Amendment (post-iteration-3): explicit opt-in gating.** As shipped,
+the suite self-enables whenever `.jira-it.env` exists at the repo root —
+which means *any* full local vitest run on a dev machine with that file
+silently drives the live instance (creates/deletes real issues) and
+re-records all fixtures. This actually happened during the iteration-3
+review: a scoped unit-test run rewrote all 184 fixture files as a side
+effect. Fix before Phase E:
+
+- The suite runs only when `JIRA_IT_RUN=1` is set (the
+  `test:jira-contract` script sets it; a bare `pnpm test` never does,
+  even with `.jira-it.env` present).
+- Fixture **recording** is a second, separate opt-in: `JIRA_IT_RECORD=1`.
+  A normal contract run verifies against the live instance without
+  touching `__fixtures__/`; re-recording is a deliberate act whose diff
+  gets reviewed.
+
 ### Phase B — fix against red contract tests
 
 The worklist, most severe first (verification verdicts from review):
@@ -210,6 +236,76 @@ Regenerate the DC unit-test mocks in `JiraAdapter.test.ts` /
   drift (e.g. Atlassian retiring classic `/search` on Cloud, DC
   gaining v3 endpoints).
 
+### Phase E — Cloud sandbox + Cloud contract suite + full regression
+
+Everything in Phases A–C was validated live against **Data Center
+only**. But the fix touched every shared write path, and two changes
+are Cloud-behavior-affecting with zero live verification:
+
+- Cloud's assignee write shape changed `{ id }` → `{ accountId }`
+  (side effect of the `userRef` consolidation). Both are documented as
+  valid; nothing has proven it live.
+- `makeRequest`'s new 204/empty-body handling now runs for Cloud
+  responses too (it fixed a latent Cloud bug — `updateIssue` would have
+  crashed on Cloud's own 204s — but that claim is also only
+  unit-tested).
+
+**E1. Cloud sandbox (human setup — one-time).** A free Jira Cloud site
+(https://www.atlassian.com/software/jira/free, 10-user limit is fine):
+
+- Company-managed project (the classic kind — team-managed projects
+  have a different createmeta/screens model), dedicated to the suite;
+  suggested key `TITC`.
+- Same shape as the DC sandbox: a **required custom field** and a
+  **user-picker custom field** on the Task create screen.
+- An API token (id.atlassian.com → Security → API tokens) + the account
+  email; note the account's `accountId` (visible in the profile URL).
+- Ideally a second user (or app-user) so assignee/user-picker tests can
+  assign someone other than the reporter.
+- Credentials land in the same gitignored `.jira-it.env`:
+  `JIRA_CLOUD_IT_BASE_URL`, `JIRA_CLOUD_IT_EMAIL`,
+  `JIRA_CLOUD_IT_API_TOKEN`, `JIRA_CLOUD_IT_PROJECT_KEY`.
+
+**E2. Cloud contract suite.** New
+`__contract__/jira-cloud.contract.test.ts`, same harness/recorder
+(fixtures to `__fixtures__/jira-cloud/`), gated on the E1 env vars +
+`JIRA_IT_RUN=1`, driving the real `JiraAdapter` through the **Cloud
+column** of the endpoint matrix:
+
+| # | Family | What must hold on Cloud |
+|---|--------|-------------------------|
+| 1 | auth `/myself` | v3, Basic email:apiToken, exactly one probe (no detection round-trips) |
+| 2 | bare-token guard | apiToken with no email → the explicit "Cloud requires email + API token" error, not an opaque 401 (worklist #10's fix, never exercised live) |
+| 3 | project list | `/project/search` → `{values}` parsing |
+| 4 | issue types | `/issuetype` / project details |
+| 5 | createmeta | classic `createmeta?expand=projects.issuetypes.fields` |
+| 6 | createIssue | ADF description accepted (TipTap→ADF, HTML→ADF, plain-string→ADF paths); **assignee `{ accountId }` write lands** — the issue is actually assigned (the open question this phase exists for) |
+| 6b | user-picker custom field | `{ accountId }` passes through unmapped and lands |
+| 7 | getIssue | ADF description/comment bodies parse back to HTML |
+| 8 | addComment | ADF body accepted |
+| 9 | transitions | transition executes; **response is 204/empty → `updateIssue` must not throw** (the live-DC-discovered bug, confirmed on Cloud) |
+| 10 | search | `/search/jql`, `nextPageToken` cursor advances to page 2, `isLast` honored |
+| 11 | user search | `?query=` param |
+| 12 | issue/picker | reachable on v3 |
+
+Cleanup discipline same as DC: suite creates real issues, teardown
+deletes them.
+
+**E3. Full regression = the merge gate.** One pass, all of:
+
+1. DC contract suite — both auth schemes (re-run, must stay 29/29).
+2. Cloud contract suite — all E2 rows green.
+3. Full unit suite + `tsc --noEmit` + `pnpm lint` clean.
+4. A manual test-connection through the real UI against both
+   deployments (exercises the route + D4 persistence + form fields the
+   contract suites bypass).
+
+Only after E3 passes does the branch merge to our `main` and the
+upstream PR get opened. Phase E also unblocks the deferred
+`resolveJiraConnection` dedup: with *both* live baselines green, the
+refactor finally has a safety net on the Cloud side of the state
+machine too.
+
 ---
 
 ## Backward compatibility
@@ -221,8 +317,12 @@ Cloud when detection is unreachable; no DB schema change
 Addition: persisted detection (D4) must never *flip* an integration
 that is currently working — only fill in missing keys.
 
-## Out of scope (unchanged)
+## Out of scope
 
 - DC OAuth (Atlassian 3LO is Cloud-only).
+- OAuth-path live testing on Cloud (3LO requires an interactive user
+  consent flow; the test-connection route's client-config check plus
+  existing unit tests remain the coverage there).
 - Webhook signature differences between Cloud and DC.
-- Cloud-side contract recording (no Cloud sandbox available).
+- ~~Cloud-side contract recording (no Cloud sandbox available)~~ —
+  now **in scope** as Phase E (sandbox setup is E1).
