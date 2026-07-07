@@ -1,0 +1,346 @@
+{
+  "name": "call-004",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/createmeta/TITP/issuetypes/3",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "maxResults": 50,
+      "startAt": 0,
+      "total": 17,
+      "isLast": true,
+      "values": [
+        {
+          "required": true,
+          "schema": {
+            "type": "string",
+            "system": "summary"
+          },
+          "name": "Summary",
+          "fieldId": "summary",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": true,
+          "schema": {
+            "type": "issuetype",
+            "system": "issuetype"
+          },
+          "name": "Issue Type",
+          "fieldId": "issuetype",
+          "hasDefaultValue": false,
+          "operations": [],
+          "allowedValues": [
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/3",
+              "id": "3",
+              "description": "A task that needs to be done.",
+              "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11138&avatarType=issuetype",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 11138
+            }
+          ]
+        },
+        {
+          "required": true,
+          "schema": {
+            "type": "user",
+            "system": "reporter"
+          },
+          "name": "Reporter",
+          "fieldId": "reporter",
+          "autoCompleteUrl": "https://jira.rapidsoft.ru/rest/api/latest/user/search?username=",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": "component",
+            "system": "components"
+          },
+          "name": "Component/s",
+          "fieldId": "components",
+          "hasDefaultValue": false,
+          "operations": [
+            "add",
+            "set",
+            "remove"
+          ],
+          "allowedValues": []
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "string",
+            "system": "description"
+          },
+          "name": "Description",
+          "fieldId": "description",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": "version",
+            "system": "fixVersions"
+          },
+          "name": "Fix Version/s",
+          "fieldId": "fixVersions",
+          "hasDefaultValue": false,
+          "operations": [
+            "set",
+            "add",
+            "remove"
+          ],
+          "allowedValues": []
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "priority",
+            "system": "priority"
+          },
+          "name": "Priority",
+          "fieldId": "priority",
+          "hasDefaultValue": true,
+          "operations": [
+            "set"
+          ],
+          "allowedValues": [
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/1",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/blocker.svg",
+              "name": "Blocker",
+              "id": "1"
+            },
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/2",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/critical.svg",
+              "name": "Critical",
+              "id": "2"
+            },
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/3",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/major.svg",
+              "name": "Major",
+              "id": "3"
+            },
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/4",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/minor.svg",
+              "name": "Minor",
+              "id": "4"
+            },
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/5",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/trivial.svg",
+              "name": "Trivial",
+              "id": "5"
+            },
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/10000",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/critical.svg",
+              "name": "High",
+              "id": "10000"
+            },
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/10001",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/major.svg",
+              "name": "Medium",
+              "id": "10001"
+            },
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/10002",
+              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/minor.svg",
+              "name": "Low",
+              "id": "10002"
+            }
+          ],
+          "defaultValue": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/priority/4",
+            "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/minor.svg",
+            "name": "Minor",
+            "id": "4"
+          }
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": "string",
+            "system": "labels"
+          },
+          "name": "Labels",
+          "fieldId": "labels",
+          "autoCompleteUrl": "https://jira.rapidsoft.ru/rest/api/1.0/labels/suggest?query=",
+          "hasDefaultValue": false,
+          "operations": [
+            "add",
+            "set",
+            "remove"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "timetracking",
+            "system": "timetracking"
+          },
+          "name": "Time Tracking",
+          "fieldId": "timetracking",
+          "hasDefaultValue": false,
+          "operations": [
+            "set",
+            "edit"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": "attachment",
+            "system": "attachment"
+          },
+          "name": "Attachment",
+          "fieldId": "attachment",
+          "hasDefaultValue": false,
+          "operations": []
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "date",
+            "system": "duedate"
+          },
+          "name": "Due Date",
+          "fieldId": "duedate",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": "issuelinks",
+            "system": "issuelinks"
+          },
+          "name": "Linked Issues",
+          "fieldId": "issuelinks",
+          "autoCompleteUrl": "https://jira.rapidsoft.ru/rest/api/2/issue/picker?currentProjectId=&showSubTaskParent=true&showSubTasks=true&currentIssueKey=null&query=",
+          "hasDefaultValue": false,
+          "operations": [
+            "add"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "any",
+            "custom": "com.pyxis.greenhopper.jira:gh-epic-link",
+            "customId": 10482
+          },
+          "name": "Epic Link",
+          "fieldId": "customfield_10482",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "user",
+            "custom": "com.atlassian.jira.plugin.system.customfieldtypes:userpicker",
+            "customId": 12781
+          },
+          "name": "TestPlanIt required user picker",
+          "fieldId": "customfield_12781",
+          "autoCompleteUrl": "https://jira.rapidsoft.ru/rest/api/1.0/users/picker?fieldName=customfield_12781&query=",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "string",
+            "custom": "com.atlassian.jira.plugin.system.customfieldtypes:textfield",
+            "customId": 12780
+          },
+          "name": "TestPlanIt required field",
+          "fieldId": "customfield_12780",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": false,
+          "schema": {
+            "type": "user",
+            "system": "assignee"
+          },
+          "name": "Assignee",
+          "fieldId": "assignee",
+          "autoCompleteUrl": "https://jira.rapidsoft.ru/rest/api/latest/user/assignable/search?issueKey=null&username=",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ]
+        },
+        {
+          "required": true,
+          "schema": {
+            "type": "project",
+            "system": "project"
+          },
+          "name": "Project",
+          "fieldId": "project",
+          "hasDefaultValue": false,
+          "operations": [
+            "set"
+          ],
+          "allowedValues": [
+            {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/project/12881",
+              "id": "12881",
+              "key": "TITP",
+              "name": "TestPlanIt Integration Test project",
+              "projectTypeKey": "software",
+              "avatarUrls": {
+                "48x48": "https://jira.rapidsoft.ru/secure/projectavatar?avatarId=11144",
+                "24x24": "https://jira.rapidsoft.ru/secure/projectavatar?size=small&avatarId=11144",
+                "16x16": "https://jira.rapidsoft.ru/secure/projectavatar?size=xsmall&avatarId=11144",
+                "32x32": "https://jira.rapidsoft.ru/secure/projectavatar?size=medium&avatarId=11144"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:36.182Z"
+}

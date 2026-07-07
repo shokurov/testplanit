@@ -1,0 +1,17 @@
+{
+  "name": "call-000",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/3/myself",
+    "headers": {
+      "Authorization": "<redacted>",
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 302,
+    "statusText": "Found",
+    "body": ""
+  },
+  "recordedAt": "2026-07-07T12:53:25.694Z"
+}

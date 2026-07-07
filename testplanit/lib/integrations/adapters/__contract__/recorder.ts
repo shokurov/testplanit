@@ -1,14 +1,25 @@
 import { writeFileSync, mkdirSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
+import { expect } from "vitest";
 
 /**
  * Recording fetch wrapper for the Jira DC contract suite.
  *
  * Wraps `globalThis.fetch` and writes one fixture file per recorded
- * request/response pair to `__fixtures__/jira-dc/<name>.json`. Fixtures
+ * request/response pair to
+ * `__fixtures__/jira-dc/<slugified-test-name>/<name>.json`. Fixtures
  * contain: method, url, request headers (secrets redacted), request body,
  * status, and response body. Secrets (Authorization, PAT, password) are
  * redacted in both headers and bodies before anything is written to disk.
+ *
+ * Fixtures are namespaced by the full test name (via
+ * `expect.getState().currentTestName`, which includes every parent
+ * `describe` block) — NOT just a flat `call-000.json` counter. The suite
+ * runs each test twice (once per auth scheme), and previously every test's
+ * fixtures overwrote the previous test's since the counter reset to 0 on
+ * every `installRecorder()` call — only whichever test happened to run
+ * last ever survived to disk. Namespacing by test name means every test's
+ * recordings are preserved independently.
  *
  * The wrapper is installed per-test via `installRecorder()` and removed in
  * teardown. It does NOT mutate the real fetch semantics — requests still go
@@ -98,10 +109,25 @@ export interface Recorder {
   written: string[];
 }
 
+/** Turn a full test name (with " > "-joined describe path) into a
+ * filesystem-safe directory name. */
+function slugify(name: string): string {
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 100);
+  return slug || "unnamed-test";
+}
+
 export function installRecorder(): Recorder {
   const realFetch = globalThis.fetch;
   const recorded: RecordedFixture[] = [];
   let counter = 0;
+  // Read once at install time — installRecorder() is called from a
+  // beforeEach, so the current test is active and its full name (this
+  // test + every parent describe block) is available.
+  const slug = slugify(expect.getState().currentTestName ?? "unnamed-test");
 
   const wrappedFetch: typeof fetch = async (
     input: any,
@@ -175,10 +201,10 @@ export function installRecorder(): Recorder {
     written: [],
     stop: () => {
       globalThis.fetch = realFetch;
-      mkdirSync(FIXTURES_DIR, { recursive: true });
+      const dir = join(FIXTURES_DIR, slug);
+      mkdirSync(dir, { recursive: true });
       for (const fx of recorded) {
-        const file = join(FIXTURES_DIR, `${fx.name}.json`);
-        mkdirSync(dirname(file), { recursive: true });
+        const file = join(dir, `${fx.name}.json`);
         writeFileSync(file, JSON.stringify(fx, null, 2) + "\n", "utf8");
       }
     },

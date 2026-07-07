@@ -1,0 +1,102 @@
+{
+  "name": "call-014",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/TITP-115/transitions",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "expand": "transitions",
+      "transitions": [
+        {
+          "id": "11",
+          "name": "To Do",
+          "description": "",
+          "opsbarSequence": 2147483647,
+          "to": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/status/10014",
+            "description": "",
+            "iconUrl": "https://jira.rapidsoft.ru/images/icons/statuses/open.png",
+            "name": "To Do",
+            "id": "10014",
+            "statusCategory": {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/2",
+              "id": 2,
+              "key": "new",
+              "colorName": "default",
+              "name": "To Do"
+            }
+          }
+        },
+        {
+          "id": "21",
+          "name": "In Progress",
+          "description": "",
+          "opsbarSequence": 2147483647,
+          "to": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/status/3",
+            "description": "This issue is being actively worked on at the moment by the assignee.",
+            "iconUrl": "https://jira.rapidsoft.ru/images/icons/statuses/inprogress.png",
+            "name": "In Progress",
+            "id": "3",
+            "statusCategory": {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/4",
+              "id": 4,
+              "key": "indeterminate",
+              "colorName": "inprogress",
+              "name": "In Progress"
+            }
+          }
+        },
+        {
+          "id": "31",
+          "name": "In Review",
+          "description": "",
+          "opsbarSequence": 2147483647,
+          "to": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/status/10419",
+            "description": "",
+            "iconUrl": "https://jira.rapidsoft.ru/",
+            "name": "In Review",
+            "id": "10419",
+            "statusCategory": {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/4",
+              "id": 4,
+              "key": "indeterminate",
+              "colorName": "inprogress",
+              "name": "In Progress"
+            }
+          }
+        },
+        {
+          "id": "41",
+          "name": "Done",
+          "description": "",
+          "opsbarSequence": 2147483647,
+          "to": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/status/10013",
+            "description": "",
+            "iconUrl": "https://jira.rapidsoft.ru/images/icons/statuses/closed.png",
+            "name": "Done",
+            "id": "10013",
+            "statusCategory": {
+              "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/3",
+              "id": 3,
+              "key": "done",
+              "colorName": "success",
+              "name": "Done"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:31.410Z"
+}

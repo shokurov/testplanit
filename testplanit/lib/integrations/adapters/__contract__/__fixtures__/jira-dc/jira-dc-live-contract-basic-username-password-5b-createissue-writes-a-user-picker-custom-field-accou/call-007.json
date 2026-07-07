@@ -1,0 +1,131 @@
+{
+  "name": "call-007",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/TITP-119?fields=summary%2Cdescription%2Cstatus%2Cpriority%2Cissuetype%2Cassignee%2Creporter%2Clabels%2Ccreated%2Cupdated&expand=names%2Cschema",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "192224",
+      "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192224",
+      "key": "TITP-119",
+      "fields": {
+        "summary": "IT contract: user-picker custom field",
+        "issuetype": {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/3",
+          "id": "3",
+          "description": "A task that needs to be done.",
+          "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11138&avatarType=issuetype",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 11138
+        },
+        "created": "2026-07-07T15:53:36.153+0300",
+        "description": null,
+        "reporter": {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
+          "name": "testplanit",
+          "key": "JIRAUSER16307",
+          "emailAddress": "testplanit@rapidsoft.ru",
+          "avatarUrls": {
+            "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
+            "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
+            "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
+            "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
+          },
+          "displayName": "TestPlanIt",
+          "active": true,
+          "timeZone": "Europe/Moscow"
+        },
+        "assignee": null,
+        "priority": {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/priority/4",
+          "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/minor.svg",
+          "name": "Minor",
+          "id": "4"
+        },
+        "updated": "2026-07-07T15:53:36.153+0300",
+        "labels": [],
+        "status": {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/status/10014",
+          "description": "",
+          "iconUrl": "https://jira.rapidsoft.ru/images/icons/statuses/open.png",
+          "name": "To Do",
+          "id": "10014",
+          "statusCategory": {
+            "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "default",
+            "name": "To Do"
+          }
+        }
+      },
+      "renderedFields": null,
+      "names": {
+        "summary": "Summary",
+        "issuetype": "Issue Type",
+        "created": "Created",
+        "description": "Description",
+        "reporter": "Reporter",
+        "assignee": "Assignee",
+        "priority": "Priority",
+        "updated": "Updated",
+        "labels": "Labels",
+        "status": "Status"
+      },
+      "schema": {
+        "summary": {
+          "type": "string",
+          "system": "summary"
+        },
+        "issuetype": {
+          "type": "issuetype",
+          "system": "issuetype"
+        },
+        "created": {
+          "type": "datetime",
+          "system": "created"
+        },
+        "description": {
+          "type": "string",
+          "system": "description"
+        },
+        "reporter": {
+          "type": "user",
+          "system": "reporter"
+        },
+        "assignee": {
+          "type": "user",
+          "system": "assignee"
+        },
+        "priority": {
+          "type": "priority",
+          "system": "priority"
+        },
+        "updated": {
+          "type": "datetime",
+          "system": "updated"
+        },
+        "labels": {
+          "type": "array",
+          "items": "string",
+          "system": "labels"
+        },
+        "status": {
+          "type": "status",
+          "system": "status"
+        }
+      }
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:36.519Z"
+}

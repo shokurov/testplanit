@@ -1,0 +1,35 @@
+{
+  "name": "call-003",
+  "request": {
+    "method": "POST",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "fields": {
+        "project": {
+          "key": "TITP"
+        },
+        "summary": "IT contract: getIssue",
+        "description": "",
+        "issuetype": {
+          "id": "3"
+        },
+        "labels": []
+      }
+    }
+  },
+  "response": {
+    "status": 201,
+    "statusText": "Created",
+    "body": {
+      "id": "192218",
+      "key": "TITP-113",
+      "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192218"
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:28.844Z"
+}

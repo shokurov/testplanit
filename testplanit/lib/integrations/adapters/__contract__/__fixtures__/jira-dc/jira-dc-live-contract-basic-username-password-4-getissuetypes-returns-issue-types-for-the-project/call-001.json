@@ -1,0 +1,32 @@
+{
+  "name": "call-001",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/serverInfo",
+    "headers": {
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "baseUrl": "https://jira.rapidsoft.ru",
+      "version": "10.3.13",
+      "versionNumbers": [
+        10,
+        3,
+        13
+      ],
+      "deploymentType": "Server",
+      "buildNumber": 10030013,
+      "buildDate": "2025-11-05T00:00:00.000+0300",
+      "databaseBuildNumber": 10030013,
+      "serverTime": "2026-07-07T15:53:35.024+0300",
+      "scmInfo": "56dd970ae30ebfeda3a697d25be1f6388b68a422",
+      "serverTitle": "RapidSoft Jira"
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:35.217Z"
+}

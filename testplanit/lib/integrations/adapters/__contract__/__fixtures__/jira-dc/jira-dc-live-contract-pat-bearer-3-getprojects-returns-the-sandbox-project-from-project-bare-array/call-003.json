@@ -1,0 +1,55 @@
+{
+  "name": "call-003",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/project",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": [
+      {
+        "expand": "description,lead,createdAt,createdBy,lastUpdatedAt,lastUpdatedBy,url,projectKeys",
+        "self": "https://jira.rapidsoft.ru/rest/api/2/project/12881",
+        "id": "12881",
+        "key": "TITP",
+        "name": "TestPlanIt Integration Test project",
+        "avatarUrls": {
+          "48x48": "https://jira.rapidsoft.ru/secure/projectavatar?avatarId=11144",
+          "24x24": "https://jira.rapidsoft.ru/secure/projectavatar?size=small&avatarId=11144",
+          "16x16": "https://jira.rapidsoft.ru/secure/projectavatar?size=xsmall&avatarId=11144",
+          "32x32": "https://jira.rapidsoft.ru/secure/projectavatar?size=medium&avatarId=11144"
+        },
+        "projectTypeKey": "software",
+        "archived": false
+      },
+      {
+        "expand": "description,lead,createdAt,createdBy,lastUpdatedAt,lastUpdatedBy,url,projectKeys",
+        "self": "https://jira.rapidsoft.ru/rest/api/2/project/10145",
+        "id": "10145",
+        "key": "SUPPORT",
+        "name": "Техническая поддержка",
+        "avatarUrls": {
+          "48x48": "https://jira.rapidsoft.ru/secure/projectavatar?pid=10145&avatarId=10030",
+          "24x24": "https://jira.rapidsoft.ru/secure/projectavatar?size=small&pid=10145&avatarId=10030",
+          "16x16": "https://jira.rapidsoft.ru/secure/projectavatar?size=xsmall&pid=10145&avatarId=10030",
+          "32x32": "https://jira.rapidsoft.ru/secure/projectavatar?size=medium&pid=10145&avatarId=10030"
+        },
+        "projectCategory": {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/projectCategory/10020",
+          "id": "10020",
+          "name": "SUPPORT",
+          "description": "Проекты поддержки"
+        },
+        "projectTypeKey": "software",
+        "archived": false
+      }
+    ]
+  },
+  "recordedAt": "2026-07-07T12:53:25.288Z"
+}

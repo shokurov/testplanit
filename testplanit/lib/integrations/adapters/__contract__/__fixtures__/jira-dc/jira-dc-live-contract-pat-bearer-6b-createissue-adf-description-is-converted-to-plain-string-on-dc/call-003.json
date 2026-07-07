@@ -1,0 +1,35 @@
+{
+  "name": "call-003",
+  "request": {
+    "method": "POST",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "fields": {
+        "project": {
+          "key": "TITP"
+        },
+        "summary": "IT contract: ADF->string conversion",
+        "description": "ADF body",
+        "issuetype": {
+          "id": "3"
+        },
+        "labels": []
+      }
+    }
+  },
+  "response": {
+    "status": 201,
+    "statusText": "Created",
+    "body": {
+      "id": "192217",
+      "key": "TITP-112",
+      "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192217"
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:28.168Z"
+}

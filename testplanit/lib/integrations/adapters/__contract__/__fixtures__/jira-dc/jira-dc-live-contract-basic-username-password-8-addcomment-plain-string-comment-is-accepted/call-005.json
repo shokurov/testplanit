@@ -1,0 +1,57 @@
+{
+  "name": "call-005",
+  "request": {
+    "method": "POST",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/TITP-123/comment",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "body": "contract comment"
+    }
+  },
+  "response": {
+    "status": 201,
+    "statusText": "Created",
+    "body": {
+      "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192228/comment/619042",
+      "id": "619042",
+      "author": {
+        "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
+        "name": "testplanit",
+        "key": "JIRAUSER16307",
+        "emailAddress": "testplanit@rapidsoft.ru",
+        "avatarUrls": {
+          "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
+          "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
+          "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
+          "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
+        },
+        "displayName": "TestPlanIt",
+        "active": true,
+        "timeZone": "Europe/Moscow"
+      },
+      "body": "contract comment",
+      "updateAuthor": {
+        "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
+        "name": "testplanit",
+        "key": "JIRAUSER16307",
+        "emailAddress": "testplanit@rapidsoft.ru",
+        "avatarUrls": {
+          "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
+          "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
+          "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
+          "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
+        },
+        "displayName": "TestPlanIt",
+        "active": true,
+        "timeZone": "Europe/Moscow"
+      },
+      "created": "2026-07-07T15:53:39.192+0300",
+      "updated": "2026-07-07T15:53:39.192+0300"
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:39.440Z"
+}

@@ -1,20 +1,20 @@
 # Handoff: Jira Server / Data Center support (issue #494) — iteration 4
 
-**TL;DR:** Three iterations done, **and this time the live contract suite
-is actually green**: 29/29 against jira.rapidsoft.ru, in **both** auth
-schemes, including the two new production-credential-shape tests. Getting
-there found and fixed two more real bugs that no amount of mocking had
-ever caught (details below): `loadEnvFile()` silently failed to load any
-`.jira-it.env` var on a CRLF-terminated file (so the very first live run
-skipped with 0 tests instead of running), and `JiraAdapter.makeRequest`
-crashed with `SyntaxError: Unexpected end of JSON input` on Jira's 204
-No Content responses — which `updateIssue` always hits, since nothing
-before this session had ever driven a real transition end-to-end. Both
-are fixed. `pnpm test`, `tsc --noEmit`, and `pnpm lint` are all clean.
-The only Definition-of-Done gate still open is the Cloud assignee-shape
-re-check (no Cloud sandbox available) and the deliberately-deferred
-`resolveJiraConnection` dedup — see "What to do". Full iteration-2 audit
-with file/line references:
+**TL;DR:** Three iterations done, the live contract suite is green (29/29,
+both auth schemes), and **Phase C is now substantially done too**: the
+contract-suite recorder used to overwrite every test's fixtures with
+whatever test ran last — fixed (fixtures now live in a per-test
+subdirectory, 184 files / 1.1MB covering every endpoint the suite
+touches), and the DC unit mocks for `createIssue`/`updateIssue` are
+tightened against that recorded reality, plus a dedicated regression test
+guards the 204-handling bug specifically. `pnpm test` (9801 tests),
+`tsc --noEmit`, and `pnpm lint` are all clean. What's left: the Cloud
+assignee-shape re-check (no Cloud sandbox available), the
+deliberately-deferred `resolveJiraConnection` dedup, and finishing the
+remaining Phase C mocks (addComment/searchUsers/getProjects/getIssueTypes
+have recordings now but haven't been used to tighten their unit tests
+yet) — see "What to do". Full iteration-2 audit with file/line
+references:
 https://github.com/shokurov/testplanit/pull/1#issuecomment-4893705588
 
 Work continues on branch `fix/jira-datacenter-494` in this repo
@@ -109,8 +109,41 @@ reopen or reference the closed upstream PR #495.
    including the two new production-credential-shape / user-picker-write
    tests from part 1. Full unit suite, `tsc --noEmit`, and `eslint` all
    re-verified clean after these two fixes.
+7. **Iteration 3, part 3 (2026-07-07, same session) — Phase C.** With
+   the suite green and live access still available, fixed the
+   recorder's overwrite bug for real and used it: `recorder.ts` now
+   namespaces every fixture by the full test name (via
+   `expect.getState().currentTestName`, includes the parent `describe`
+   chain so the same test under different auth schemes doesn't collide)
+   instead of a flat `call-000.json` counter that reset on every test.
+   Re-ran the full suite once with the fix in place — 184 fixture files
+   across 29 per-test directories, 1.1MB, covering every endpoint the
+   suite touches (previously 7-18 files covering whichever test ran
+   last). Used the new recordings to:
+   - Tighten `createIssue`'s DC user-picker-custom-field unit test to
+     assert the **full** request body against a live-recorded shape
+     (confirms e.g. `description: ""` when unset, no stray
+     assignee/reporter/priority keys when unset).
+   - Tighten `updateIssue`'s equivalent test to mock the PUT call as a
+     genuine `{ ok: true, status: 204 }` (no `.json()` method) instead
+     of `{ ok: true, json: () => Promise.resolve({}) }` — the old mock
+     would NOT have caught the 204 bug even if reverted, since `.json()`
+     on `{}` doesn't throw. It's a real regression guard now.
+   - Added a dedicated test ("handles Jira's 204 No Content on PUT
+     /issue and the transition-execute POST") that exists purely to
+     guard the part-2 bug, using the exact recorded transitions-response
+     shape.
+   - Deleted the old flat `call-000.json`..`call-017.json` files, fully
+     superseded by the organized structure.
+   **Not done:** `addComment`/`searchUsers`/`getProjects`/
+   `getIssueTypes` now have live recordings (from whichever tests
+   exercise them) but their existing unit-test mocks weren't revisited
+   — diminishing returns for the time spent vs. the auth/createIssue/
+   updateIssue paths, which carried the actual bugs. Full unit suite
+   (9801 tests), `tsc --noEmit`, and `eslint` re-verified clean again
+   after this round.
 
-## Where things stand (after iteration 3, parts 1 and 2 — see "Session
+## Where things stand (after iteration 3, parts 1–3 — see "Session
 ## state" for what's committed)
 
 Trust these — unit-tested, `tsc`/`eslint` clean, AND live-verified
@@ -170,25 +203,16 @@ against jira.rapidsoft.ru (both auth schemes) unless noted otherwise:
   bug in `updateIssue`/transitions, not DC-specific — see below).
 
 Do NOT trust these:
-- **Phase C (fixture-derived mocks) is still only partial.** The recorder
-  in `__contract__/recorder.ts` resets its file-name counter
-  (`call-000.json`, `call-001.json`, …) on *every test*, so each test's
-  fixtures overwrite the previous test's — running the suite this
-  session left 18 files on disk (`call-000` through `call-017`), all
-  from whichever test happened to run last (the second scheme's `#9`),
-  not a curated archive. Usefully, that happens to now include real
-  recordings of `PUT /issue/{id}` and `POST .../transitions` both
-  returning **204 No Content** (`call-009`, `call-013`, `call-015`) —
-  direct live evidence for the `makeRequest` bug described above — plus
-  `GET .../transitions` (call-012/014) and a plain `GET .../search`
-  (call-007/008). Still no recordings of `createIssue`'s or
-  `addComment`'s request bodies, `searchUsers`, `getProjects`, or
-  `getIssueTypes`. `dcIssue.description` in `JiraAdapter.test.ts` was
-  tightened against a recorded shape this session (now a plain string,
-  not ADF); the rest of Phase C's mock regeneration is unstarted. If the
-  recorder's overwrite behavior isn't fixed (e.g. a global counter, or
-  per-test subdirectories), a future recording run will keep landing on
-  "only the last test's calls survive."
+- **Phase C is now mostly, not fully, done** (see part 3 above for what
+  changed). The recorder is fixed and there are 184 real fixture files
+  organized one-subdirectory-per-test under `__fixtures__/jira-dc/` —
+  but only `createIssue`/`updateIssue`'s DC unit tests were actually
+  tightened against them. **Not revisited:** the existing unit-test
+  mocks for `addComment`, `searchUsers`, `getProjects`, and
+  `getIssueTypes` — recordings for these now exist (look for the
+  per-test directory matching the relevant contract-suite test name,
+  e.g. `...-8-addcomment-.../`, `...-11-searchusers-.../`), they just
+  weren't used to tighten anything yet.
 - **The `resolveJiraConnection` dedup (cleanup item) was deliberately
   skipped.** `JiraAdapter.performAuthentication` and the test-connection
   route's `testJiraConnection` still carry two divergent ~60-line copies
@@ -202,22 +226,17 @@ Do NOT trust these:
 
 ## What to do (order matters — most severe first)
 
-1. **Decide whether to fix the recorder's overwrite bug before
-   recording more fixtures.** `__contract__/recorder.ts`'s per-test file
-   counter means only the last test's calls are ever saved to disk. If
-   you want Phase C's remaining fixtures (createIssue/updateIssue/
-   addComment/searchUsers/getProjects/getIssueTypes/transitions have
-   none), fix this first (e.g. a session-scoped or per-test-name
-   counter) or you'll keep overwriting your own recordings.
-2. **Finish Phase C** once fixtures exist: regenerate the remaining DC
-   unit-test mocks in `JiraAdapter.test.ts` to assert request shape
-   (method, path, params, body) against recorded reality, not stub
-   200s. Two mocks were already tightened against real recordings this
-   session (`dcIssue.description`, and — more importantly —
-   `makeRequest`'s 204-handling, found by the live suite rather than a
-   fixture); the rest of Phase C still needs live-recorded fixtures to
-   work from.
-3. **Cleanup: extract `resolveJiraConnection`.** `JiraAdapter.
+1. **Finish Phase C's remaining mocks.** The recorder is fixed and 184
+   fixture files exist (one subdirectory per test under
+   `__fixtures__/jira-dc/`), but only `createIssue`/`updateIssue`'s DC
+   unit tests were tightened against them. `addComment`, `searchUsers`,
+   `getProjects`, and `getIssueTypes` have recordings sitting there
+   unused — go tighten their existing unit-test mocks the same way
+   (assert request shape, use recorded response bodies) before this is
+   fully done. If any test scenario is still missing a recording,
+   `pnpm test:jira-contract` again — fixtures now land in their own
+   directory without clobbering anything.
+2. **Cleanup: extract `resolveJiraConnection`.** `JiraAdapter.
    performAuthentication` and the test-connection route's
    `testJiraConnection` still carry two divergent ~60-line copies of the
    probe/detect/re-auth state machine — the one cleanup item not done
@@ -226,7 +245,7 @@ Do NOT trust these:
    to confirm detection still works — both auth schemes, and ideally
    also force `deploymentType: "server"`/`"cloud"` overrides once by
    hand since the suite doesn't currently exercise those).
-4. **Re-verify Cloud is untouched.** Iteration 3 changed Cloud's
+3. **Re-verify Cloud is untouched.** Iteration 3 changed Cloud's
    assignee write shape from `{ id }` to `{ accountId }` as a side effect
    of consolidating reporter/assignee/custom-fields through one `userRef`
    mapper (see `JiraAdapter.test.ts`, "should include assignee when
@@ -235,7 +254,7 @@ Do NOT trust these:
    there's no Cloud sandbox to confirm the Cloud-specific shape live —
    if one becomes available, create an issue with an assignee through
    TestPlanIt and confirm it actually gets assigned.
-5. **Consider auditing other `makeRequest` call sites for the same
+4. **Consider auditing other `makeRequest` call sites for the same
    204 assumption class of bug.** The fix in `makeRequest` is general
    (any empty-body ok response), so it covers everything routed through
    it. But it was found by accident (the first live `updateIssue` call
@@ -260,17 +279,19 @@ Do NOT trust these:
       `userRefField` wired in, D4 detection persisted, legacy
       `apiEmail`/`apiToken` dropped); the detection-state-machine dedup
       is still open — no longer blocked on live access (the suite is
-      green now), just not done — see "What to do" #3.
+      green now), just not done — see "What to do" #2.
 - [x] Full vitest suite green (contract suite included); existing Cloud
       tests untouched and green; `tsc --noEmit` AND `pnpm lint` clean.
       12 pre-existing suite-load failures unrelated to Jira (missing env
       vars / zenstack not generated on Windows, see "Environment"
       below) and 12 pre-existing unrelated `tsc` errors, neither in a
       touched file.
-- [ ] DC unit tests regenerated from fixtures. Two mocks tightened
-      against reality this session (one from a fixture, one from a live
-      failure); the rest is still undone — see "What to do" #1–#2 (blocked
-      on the recorder's overwrite bug, not on live access anymore).
+- [ ] DC unit tests regenerated from fixtures. Recorder fixed, 184
+      fixture files exist covering every endpoint; `createIssue`/
+      `updateIssue` tightened against them plus a dedicated 204
+      regression test. `addComment`/`searchUsers`/`getProjects`/
+      `getIssueTypes` have recordings but their mocks weren't revisited
+      yet — see "What to do" #1. No longer blocked on anything but time.
 - [x] No secrets in fixtures (re-checked this session; still clean).
 - [x] Docs verified against actual behavior — confirmed live as of the
       auth fix; no other doc claims changed this session.
@@ -325,9 +346,8 @@ Do NOT trust these:
   decisions and the 12-family endpoint contract matrix.
 - The unrelated `PLAN.md` in the same directory (milestones #8/#9) — do
   not touch.
-- **Session state:** part 1 of iteration 3 was committed as `9b124cf4`
-  ("Data Center Basic auth plumbing, pagination cursor, user-picker
-  fields (iteration 3)"). Part 2's two live-discovered fixes
-  (`loadEnvFile` CRLF splitting in `jira-dc.contract.test.ts`, and the
-  `makeRequest` 204 handling in `JiraAdapter.ts`) — check `git status`
-  for whether they've landed in a follow-up commit yet.
+- **Session state:** part 1 committed as `9b124cf4` ("Data Center Basic
+  auth plumbing, pagination cursor, user-picker fields (iteration 3)"),
+  part 2 as `a25b971d` ("fix live contract suite env loading and a real
+  204-handling crash"). Part 3 (Phase C: recorder fix + mock tightening)
+  — check `git log` for whether it's landed in a follow-up commit yet.

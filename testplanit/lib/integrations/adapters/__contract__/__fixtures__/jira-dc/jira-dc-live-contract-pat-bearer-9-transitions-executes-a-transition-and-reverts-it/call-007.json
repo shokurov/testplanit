@@ -1,0 +1,21 @@
+{
+  "name": "call-007",
+  "request": {
+    "method": "PUT",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/TITP-115",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "fields": {}
+    }
+  },
+  "response": {
+    "status": 204,
+    "statusText": "No Content",
+    "body": ""
+  },
+  "recordedAt": "2026-07-07T12:53:30.793Z"
+}

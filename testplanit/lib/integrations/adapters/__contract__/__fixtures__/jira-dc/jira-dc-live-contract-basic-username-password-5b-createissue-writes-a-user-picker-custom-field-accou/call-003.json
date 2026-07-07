@@ -1,0 +1,147 @@
+{
+  "name": "call-003",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/project/TITP",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "expand": "description,lead,createdAt,createdBy,lastUpdatedAt,lastUpdatedBy,url,projectKeys",
+      "self": "https://jira.rapidsoft.ru/rest/api/2/project/12881",
+      "id": "12881",
+      "key": "TITP",
+      "description": "",
+      "lead": {
+        "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=admin",
+        "key": "admin",
+        "name": "admin",
+        "avatarUrls": {
+          "48x48": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=48",
+          "24x24": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=24",
+          "16x16": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=16",
+          "32x32": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=32"
+        },
+        "displayName": "Admin",
+        "active": true
+      },
+      "createdAt": "2026-07-06T10:52:25.825+0300",
+      "createdBy": {
+        "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=admin",
+        "key": "admin",
+        "name": "admin",
+        "avatarUrls": {
+          "48x48": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=48",
+          "24x24": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=24",
+          "16x16": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=16",
+          "32x32": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=32"
+        },
+        "displayName": "Admin",
+        "active": true
+      },
+      "lastUpdatedAt": "2026-07-06T10:52:25.825+0300",
+      "lastUpdatedBy": {
+        "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=admin",
+        "key": "admin",
+        "name": "admin",
+        "avatarUrls": {
+          "48x48": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=48",
+          "24x24": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=24",
+          "16x16": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=16",
+          "32x32": "https://www.gravatar.com/avatar/0374f303a26d2861aaf3d43deb0bbd57?d=mm&s=32"
+        },
+        "displayName": "Admin",
+        "active": true
+      },
+      "components": [],
+      "issueTypes": [
+        {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/4",
+          "id": "4",
+          "description": "An improvement or enhancement to an existing feature or task.",
+          "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11130&avatarType=issuetype",
+          "name": "Improvement",
+          "subtask": false,
+          "avatarId": 11130
+        },
+        {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/3",
+          "id": "3",
+          "description": "A task that needs to be done.",
+          "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11138&avatarType=issuetype",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 11138
+        },
+        {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/15",
+          "id": "15",
+          "description": "The sub-task of the issue",
+          "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11136&avatarType=issuetype",
+          "name": "Sub-task",
+          "subtask": true,
+          "avatarId": 11136
+        },
+        {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/2",
+          "id": "2",
+          "description": "A new feature of the product, which has yet to be developed.",
+          "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11131&avatarType=issuetype",
+          "name": "New Feature",
+          "subtask": false,
+          "avatarId": 11131
+        },
+        {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/1",
+          "id": "1",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11123&avatarType=issuetype",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 11123
+        },
+        {
+          "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/23",
+          "id": "23",
+          "description": "Created by Jira Software - do not edit or delete. Issue type for a big user story that needs to be broken down.",
+          "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11127&avatarType=issuetype",
+          "name": "Epic",
+          "subtask": false,
+          "avatarId": 11127
+        }
+      ],
+      "assigneeType": "UNASSIGNED",
+      "versions": [],
+      "name": "TestPlanIt Integration Test project",
+      "roles": {
+        "Service Desk Team": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10021",
+        "Developers": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10001",
+        "Service Desk Customers": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10020",
+        "Support": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10011",
+        "Customer": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10003",
+        "Managers": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10012",
+        "Administrators": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10002",
+        "Commenter": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10120",
+        "Testers": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10320",
+        "Users": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10000",
+        "Internals": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10013",
+        "GitLab": "https://jira.rapidsoft.ru/rest/api/2/project/12881/role/10221"
+      },
+      "avatarUrls": {
+        "48x48": "https://jira.rapidsoft.ru/secure/projectavatar?avatarId=11144",
+        "24x24": "https://jira.rapidsoft.ru/secure/projectavatar?size=small&avatarId=11144",
+        "16x16": "https://jira.rapidsoft.ru/secure/projectavatar?size=xsmall&avatarId=11144",
+        "32x32": "https://jira.rapidsoft.ru/secure/projectavatar?size=medium&avatarId=11144"
+      },
+      "projectTypeKey": "software",
+      "archived": false
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:36.103Z"
+}

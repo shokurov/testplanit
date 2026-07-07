@@ -2187,9 +2187,66 @@ describe("JiraAdapter Data Center / Server", () => {
     expect(body.fields.reporter).toEqual({ name: "bob" });
   });
 
+  it("handles Jira's 204 No Content on PUT /issue and the transition-execute POST (live contract suite #9)", async () => {
+    // Confirmed live against jira.rapidsoft.ru: both the issue-update PUT
+    // and the transition-execute POST return 204 with an empty body.
+    // makeRequest used to call response.json() unconditionally, which
+    // throws "Unexpected end of JSON input" on an empty body — this was a
+    // real, previously undiscovered crash in updateIssue()/status changes,
+    // on Cloud as much as Data Center, since nothing had ever driven a
+    // live transition before the contract suite's #9 test.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    mockFetch
+      // PUT /issue/{id} (fields update, empty since only status changes here)
+      .mockResolvedValueOnce({ ok: true, status: 204 })
+      // GET /issue/{id}/transitions
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            transitions: [{ id: "21", name: "Start", to: { name: "In Progress" } }],
+          }),
+      })
+      // POST /issue/{id}/transitions (execute) -> 204
+      .mockResolvedValueOnce({ ok: true, status: 204 })
+      // getIssue() at the end of updateIssue()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(dcIssue),
+      });
+
+    await expect(
+      adapter.updateIssue("DC-1", { status: "In Progress" })
+    ).resolves.toBeTruthy();
+
+    const transitionPost = mockFetch.mock.calls.find(
+      (c: any[]) =>
+        typeof c[0] === "string" &&
+        c[0].endsWith("/transitions") &&
+        (c[1] as any)?.method === "POST"
+    );
+    expect(transitionPost).toBeTruthy();
+    expect(JSON.parse((transitionPost![1] as any).body)).toEqual({
+      transition: { id: "21" },
+    });
+  });
+
   it("maps a user-picker custom field { accountId } to { name } when creating issues on Data Center", async () => {
     // The form/route always emit a user-picker value as { accountId } (Jira's
-    // own Cloud convention) regardless of deployment — worklist #7.
+    // own Cloud convention) regardless of deployment — worklist #7. Request
+    // body shape below matches a live POST /issue recording (status 201)
+    // against jira.rapidsoft.ru: no description supplied -> "" (not null,
+    // and not omitted); no assignee/reporter/priority keys when unset.
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve({ name: "alice" }),
@@ -2203,6 +2260,7 @@ describe("JiraAdapter Data Center / Server", () => {
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
+      status: 201,
       json: () =>
         Promise.resolve({
           id: "20001",
@@ -2226,8 +2284,18 @@ describe("JiraAdapter Data Center / Server", () => {
       (c: any[]) =>
         typeof c[0] === "string" && c[0].endsWith("/rest/api/2/issue")
     );
+    expect((createCall![1] as any).method).toBe("POST");
     const body = JSON.parse((createCall![1] as any).body);
-    expect(body.fields.customfield_10050).toEqual({ name: "carol" });
+    expect(body).toEqual({
+      fields: {
+        project: { key: "DC" },
+        summary: "DC Issue",
+        description: "",
+        issuetype: { id: "10001" },
+        labels: [],
+        customfield_10050: { name: "carol" },
+      },
+    });
   });
 
   it("maps a user-picker custom field { accountId } to { name } when updating issues on Data Center", async () => {
@@ -2242,8 +2310,12 @@ describe("JiraAdapter Data Center / Server", () => {
       baseUrl: "https://jira.mycompany.domain",
     });
 
+    // PUT /issue/{id} really returns 204 No Content on Data Center (and
+    // Cloud) — no `.json()` method on this mock at all, so this test fails
+    // if makeRequest's 204 handling regresses (it used to call
+    // response.json() unconditionally and crash on a live empty body).
     mockFetch
-      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) })
+      .mockResolvedValueOnce({ ok: true, status: 204 })
       .mockResolvedValueOnce({
         ok: true,
         json: () => Promise.resolve(dcIssue),
@@ -2257,6 +2329,7 @@ describe("JiraAdapter Data Center / Server", () => {
       (c: any[]) =>
         typeof c[0] === "string" && c[0].endsWith("/rest/api/2/issue/DC-1")
     );
+    expect((updateCall![1] as any).method).toBe("PUT");
     const body = JSON.parse((updateCall![1] as any).body);
     expect(body.fields.customfield_10050).toEqual({ name: "carol" });
   });

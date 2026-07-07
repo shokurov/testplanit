@@ -1,0 +1,25 @@
+{
+  "name": "call-003",
+  "request": {
+    "method": "GET",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/picker?currentJQL=&showSubTasks=false&showSubTaskParent=false",
+    "headers": {
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "sections": [
+        {
+          "label": "History Search",
+          "id": "hs",
+          "msg": "No matching issues found",
+          "issues": []
+        }
+      ]
+    }
+  },
+  "recordedAt": "2026-07-07T12:53:34.434Z"
+}
