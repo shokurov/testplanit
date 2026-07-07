@@ -15,6 +15,10 @@ const eslintConfig = [
       "**/playwright-report/**",
       "e2e/test-results/**",
       "coverage/**",
+      // Excluded from tsconfig.json (env-gated live contract suite + its
+      // recorder — see PLAN-jira-dc-494.md Phase A); the type-aware parser
+      // below can't resolve a project for them either.
+      "**/__contract__/**",
     ],
   },
   {

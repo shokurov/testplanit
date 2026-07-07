@@ -94,10 +94,10 @@ const authTypeFields: Record<string, FieldConfig[]> = {
       placeholder: "config.emailPlaceholder",
       help: "config.emailHelp",
       isCredential: true,
-      // Optional: Jira Cloud pairs an email with an API token, but Jira
+      // Optional: only Jira Cloud pairs an email with an API token. Jira
       // Server / Data Center authenticates with a Personal Access Token
-      // (sent as Bearer) or a username + password (Basic), neither of
-      // which needs an email here. The adapter auto-detects the scheme.
+      // (sent as Bearer, via apiToken alone) or a username + password
+      // (Basic, via the dedicated fields below) — neither needs this field.
       required: false,
     },
     {
@@ -107,7 +107,27 @@ const authTypeFields: Record<string, FieldConfig[]> = {
       help: "config.apiTokenHelp",
       type: "password",
       isCredential: true,
-      required: true,
+      // Optional: required for Cloud (paired with email) and for a Data
+      // Center Personal Access Token, but must stay blank for Data Center
+      // Basic auth (username + password below).
+      required: false,
+    },
+    {
+      name: "username",
+      label: "config.username",
+      placeholder: "config.usernamePlaceholder",
+      help: "config.usernameHelp",
+      isCredential: true,
+      required: false,
+    },
+    {
+      name: "password",
+      label: "config.password",
+      placeholder: "config.passwordPlaceholder",
+      help: "config.passwordHelp",
+      type: "password",
+      isCredential: true,
+      required: false,
     },
     {
       name: "baseUrl",

@@ -213,6 +213,41 @@ describe("POST /api/integrations/test-connection", () => {
       expect(data.error).toContain("401");
     });
 
+    it("returns a clear error for a bare API token against Jira Cloud (no email/username)", async () => {
+      (getServerSession as any).mockResolvedValue(mockSession);
+      // v3 /myself -> rejected (a bare token was guessed as Bearer, which
+      // Cloud's API-key auth does not accept).
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+        json: async () => ({}),
+      });
+      // serverInfo probe (same bad header) also fails -> detection falls to
+      // the hostname heuristic, which still resolves *.atlassian.net as cloud.
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+        json: async () => ({}),
+      });
+
+      const response = await POST(
+        createRequest({
+          provider: "JIRA",
+          authType: "API_KEY",
+          credentials: { apiToken: "bare-token" },
+          settings: { baseUrl: "https://mycompany.atlassian.net" },
+        })
+      );
+      const data = await response.json();
+
+      expect(data.success).toBe(false);
+      expect(data.error).toContain(
+        "Jira Cloud authentication requires an email address paired with the API token"
+      );
+    });
+
     it("returns failure when Jira API_KEY missing required fields", async () => {
       (getServerSession as any).mockResolvedValue(mockSession);
 
@@ -775,5 +810,86 @@ describe("POST /api/integrations/test-connection — Jira Data Center", () => {
     expect((v3Call![1] as any).redirect).toBe("manual");
     const calledUrls = mockFetch.mock.calls.map((c: any[]) => c[0]);
     expect(calledUrls).toContain("https://jira.rapidsoft.ru/rest/api/2/myself");
+  });
+
+  describe("D4: persists resolved deploymentType/authScheme", () => {
+    beforeEach(() => {
+      (isEncrypted as any).mockReturnValue(false);
+    });
+
+    it("fills in deploymentType/authScheme on a successful test when unset", async () => {
+      (prisma.integration.findUnique as any).mockResolvedValue({
+        id: 42,
+        provider: "JIRA",
+        authType: "API_KEY",
+        credentials: { apiToken: "pat-123" },
+        settings: { baseUrl: "https://jira.mycompany.domain" },
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        statusText: "Not Found",
+        json: async () => ({}),
+      });
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ deploymentType: "Server" }),
+      });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({}) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ issues: [] }) });
+      mockFetch.mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({}) });
+
+      const response = await POST(createRequest({ integrationId: 42 }));
+      const data = await response.json();
+
+      expect(data.success).toBe(true);
+      expect(prisma.integration.update).toHaveBeenCalledWith({
+        where: { id: 42 },
+        data: expect.objectContaining({
+          status: "ACTIVE",
+          settings: expect.objectContaining({
+            baseUrl: "https://jira.mycompany.domain",
+            deploymentType: "server",
+            authScheme: "bearer",
+          }),
+        }),
+      });
+    });
+
+    it("never overwrites already-resolved settings keys (fill-missing-only)", async () => {
+      // deploymentType=server is an explicit override, so the route skips
+      // v3/serverInfo detection entirely and probes v2 directly.
+      (prisma.integration.findUnique as any).mockResolvedValue({
+        id: 43,
+        provider: "JIRA",
+        authType: "API_KEY",
+        credentials: { apiToken: "pat-123" },
+        settings: {
+          baseUrl: "https://jira.mycompany.domain",
+          deploymentType: "server",
+          authScheme: "bearer",
+          customSetting: "must-survive",
+        },
+      });
+
+      mockFetch.mockResolvedValue({ ok: true, status: 200, json: async () => ({}) });
+
+      const response = await POST(createRequest({ integrationId: 43 }));
+      const data = await response.json();
+
+      expect(data.success).toBe(true);
+      expect(prisma.integration.update).toHaveBeenCalledWith({
+        where: { id: 43 },
+        data: expect.objectContaining({
+          settings: expect.objectContaining({
+            baseUrl: "https://jira.mycompany.domain",
+            deploymentType: "server",
+            authScheme: "bearer",
+            customSetting: "must-survive",
+          }),
+        }),
+      });
+    });
   });
 });

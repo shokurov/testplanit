@@ -137,6 +137,33 @@ describe("JiraAdapter", () => {
       ).rejects.toThrow("Jira API authentication failed: Unauthorized");
     });
 
+    it("throws a clear error for a bare API token against Jira Cloud (no email/username)", async () => {
+      // v3 /myself -> rejected (a bare token was guessed as Bearer, which
+      // Cloud's API-key auth does not accept).
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+      });
+      // serverInfo probe (same bad header) also fails -> detection falls to
+      // the hostname heuristic, which still resolves *.atlassian.net as cloud.
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        statusText: "Unauthorized",
+      });
+
+      await expect(
+        adapter.authenticate({
+          type: "api_key",
+          apiToken: "bare-token",
+          baseUrl: "https://test.atlassian.net",
+        })
+      ).rejects.toThrow(
+        /Jira Cloud authentication requires an email address paired with the API token/
+      );
+    });
+
     it("should authenticate with OAuth and get cloud resources", async () => {
       // Mock environment variables BEFORE creating adapter
       vi.stubEnv("JIRA_CLIENT_ID", "test-client-id");
@@ -510,7 +537,10 @@ describe("JiraAdapter", () => {
       const createCall = mockFetch.mock.calls[createCallIndex];
       const body = JSON.parse(createCall[1].body);
 
-      expect(body.fields.assignee).toEqual({ id: "user-123" });
+      // { accountId } is Jira Cloud's canonical user-ref shape ({ id } is
+      // also accepted) — see userRefField in jiraDeployment.ts, which
+      // reporter/assignee/user-picker custom fields all route through.
+      expect(body.fields.assignee).toEqual({ accountId: "user-123" });
     });
 
     describe("priority mapping (dialog tokens vs numeric IDs)", () => {
@@ -616,6 +646,38 @@ describe("JiraAdapter", () => {
       expect(body.fields.summary).toBe("Updated Title");
       expect(body.fields.priority).toEqual({ id: "1" });
       expect(body.fields.labels).toEqual(["updated"]);
+    });
+
+    it("sets assignee as { accountId } on Cloud", async () => {
+      mockFetch
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockJiraIssue),
+        });
+
+      await adapter.updateIssue("TEST-123", { assigneeId: "user-456" });
+
+      const updateCall = mockFetch.mock.calls[1];
+      const body = JSON.parse(updateCall[1].body);
+      expect(body.fields.assignee).toEqual({ accountId: "user-456" });
+    });
+
+    it("maps a user-picker custom field { accountId } through on Cloud unchanged", async () => {
+      mockFetch
+        .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockJiraIssue),
+        });
+
+      await adapter.updateIssue("TEST-123", {
+        customFields: { customfield_10050: { accountId: "carol-1" } },
+      });
+
+      const updateCall = mockFetch.mock.calls[1];
+      const body = JSON.parse(updateCall[1].body);
+      expect(body.fields.customfield_10050).toEqual({ accountId: "carol-1" });
     });
 
     it("should handle status transition", async () => {
@@ -1926,21 +1988,17 @@ describe("JiraAdapter Data Center / Server", () => {
   // beforeEach.
   let adapter: JiraAdapter;
 
+  // Field shapes below (plain-string description, name/key user refs) match
+  // a live Jira DC 10.3.13 GET /issue response recorded in
+  // __fixtures__/jira-dc/call-004.json — DC v2 returns descriptions as plain
+  // strings (or null), never ADF, unlike Cloud's v3.
   const dcIssue = {
     id: "20001",
     key: "DC-1",
     self: "https://jira.mycompany.domain/rest/api/2/issue/20001",
     fields: {
       summary: "DC Issue",
-      description: {
-        type: "doc",
-        content: [
-          {
-            type: "paragraph",
-            content: [{ type: "text", text: "DC body" }],
-          },
-        ],
-      },
+      description: "DC body",
       status: { name: "Open" },
       priority: { name: "High" },
       issuetype: { id: "10001", name: "Bug", iconUrl: "https://icon.url" },
@@ -2127,5 +2185,144 @@ describe("JiraAdapter Data Center / Server", () => {
     const body = JSON.parse((createCall![1] as any).body);
     expect(body.fields.assignee).toEqual({ name: "alice" });
     expect(body.fields.reporter).toEqual({ name: "bob" });
+  });
+
+  it("maps a user-picker custom field { accountId } to { name } when creating issues on Data Center", async () => {
+    // The form/route always emit a user-picker value as { accountId } (Jira's
+    // own Cloud convention) regardless of deployment — worklist #7.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          id: "20001",
+          key: "DC-1",
+          self: "https://jira.mycompany.domain/rest/api/2/issue/20001",
+        }),
+    });
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(dcIssue),
+    });
+
+    await adapter.createIssue({
+      title: "DC Issue",
+      projectId: "DC",
+      issueType: "10001",
+      customFields: { customfield_10050: { accountId: "carol" } },
+    } as any);
+
+    const createCall = mockFetch.mock.calls.find(
+      (c: any[]) =>
+        typeof c[0] === "string" && c[0].endsWith("/rest/api/2/issue")
+    );
+    const body = JSON.parse((createCall![1] as any).body);
+    expect(body.fields.customfield_10050).toEqual({ name: "carol" });
+  });
+
+  it("maps a user-picker custom field { accountId } to { name } when updating issues on Data Center", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    mockFetch
+      .mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({}) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(dcIssue),
+      });
+
+    await adapter.updateIssue("DC-1", {
+      customFields: { customfield_10050: { accountId: "carol" } },
+    });
+
+    const updateCall = mockFetch.mock.calls.find(
+      (c: any[]) =>
+        typeof c[0] === "string" && c[0].endsWith("/rest/api/2/issue/DC-1")
+    );
+    const body = JSON.parse((updateCall![1] as any).body);
+    expect(body.fields.customfield_10050).toEqual({ name: "carol" });
+  });
+
+  it("synthesizes a startAt-based nextPageToken on Data Center so pagination can advance", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    // Page 1: one issue back, two more exist (total=3, startAt=0).
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ issues: [dcIssue], total: 3, startAt: 0 }),
+    });
+    const page1 = await adapter.searchIssues({ projectId: "DC", limit: 1 });
+    expect(page1.hasMore).toBe(true);
+    expect(page1.nextPageToken).toBe("1");
+
+    // Page 2: pass the returned cursor back in — the adapter must send it
+    // as startAt (this is the SyncService.performProjectImport contract).
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ issues: [dcIssue], total: 3, startAt: 1 }),
+    });
+    const page2 = await adapter.searchIssues({
+      projectId: "DC",
+      limit: 1,
+      pageToken: page1.nextPageToken,
+    });
+
+    const searchCalls = mockFetch.mock.calls.filter(
+      (c: any[]) =>
+        typeof c[0] === "string" && c[0].includes("/rest/api/2/search?")
+    );
+    expect(searchCalls).toHaveLength(2);
+    expect(searchCalls[0]![0]).not.toContain("startAt");
+    expect(searchCalls[1]![0]).toContain("startAt=1");
+    expect(page2.hasMore).toBe(true);
+    expect(page2.nextPageToken).toBe("2");
+  });
+
+  it("omits nextPageToken on Data Center once the last page is reached", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ issues: [dcIssue], total: 1, startAt: 0 }),
+    });
+    const res = await adapter.searchIssues({ projectId: "DC", limit: 50 });
+    expect(res.hasMore).toBe(false);
+    expect(res.nextPageToken).toBeUndefined();
   });
 });

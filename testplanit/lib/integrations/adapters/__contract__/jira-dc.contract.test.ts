@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { JiraAdapter } from "../JiraAdapter";
+import type { AuthenticationData } from "../IssueAdapter";
 import { installRecorder, type Recorder } from "./recorder";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { Buffer } from "node:buffer";
 
 /**
  * Live Jira Server / Data Center contract suite.
@@ -61,8 +63,6 @@ const USERNAME = process.env.JIRA_IT_USERNAME;
 const PASSWORD = process.env.JIRA_IT_PASSWORD;
 
 const RUN = !!BASE_URL && !!PROJECT_KEY && (!!PAT || (!!USERNAME && !!PASSWORD));
-
-const itLive = RUN ? it : it.skip;
 
 interface AuthScheme {
   label: string;
@@ -128,12 +128,64 @@ describe.skipIf(!RUN)("Jira DC live contract", () => {
     }
   });
 
-  // Helper: build an authenticated adapter for a scheme.
-  function adapterFor(scheme: AuthScheme): JiraAdapter {
+  // Helper: build an adapter for the live base URL. Auth scheme is applied
+  // separately via adapter.authenticate(scheme.auth), so construction needs
+  // nothing scheme-specific.
+  function adapterFor(): JiraAdapter {
     return new JiraAdapter({
       provider: "JIRA",
       baseUrl: BASE_URL,
     });
+  }
+
+  // Regression guard for the bug reported upstream: IntegrationManager.
+  // getAdapter used to forward only email/apiToken/personalAccessToken from
+  // a saved integration's `credentials`, so a Basic username+password
+  // integration could never reach the adapter in production even though the
+  // adapter and test-connection route both already accepted that shape. This
+  // builds `authData` the exact way IntegrationManager.getAdapter does (see
+  // lib/integrations/IntegrationManager.ts) from a DB-shaped `credentials`
+  // object — not the `{ username, password }` shorthand the scheme table
+  // below hands the adapter directly — and drives the live instance through
+  // it end to end.
+  if (USERNAME && PASSWORD) {
+    it("production credential shape: Basic username+password as IntegrationManager.getAdapter builds it", async () => {
+      const credentials: Record<string, string> = {
+        username: USERNAME,
+        password: PASSWORD,
+      };
+      const authData: AuthenticationData = { type: "api_key" };
+      if (credentials.email) authData.email = credentials.email;
+      if (credentials.apiToken) authData.apiToken = credentials.apiToken;
+      if (credentials.username) authData.username = credentials.username;
+      if (credentials.password) authData.password = credentials.password;
+      authData.baseUrl = BASE_URL;
+
+      const prodAdapter = adapterFor();
+      await prodAdapter.authenticate(authData);
+
+      const user = await prodAdapter.getCurrentUser();
+      expect(user).not.toBeNull();
+      expect(user?.displayName).toBeTruthy();
+    });
+  }
+
+  // Raw-fetch auth header for a scheme, used by tests that probe the REST
+  // API directly (transitions discovery, /issue/picker) instead of through
+  // the adapter.
+  function headersForScheme(scheme: AuthScheme): Record<string, string> {
+    if (scheme.auth.apiToken) {
+      return {
+        Authorization: `Bearer ${scheme.auth.apiToken}`,
+        Accept: "application/json",
+      };
+    }
+    return {
+      Authorization: `Basic ${Buffer.from(
+        `${scheme.auth.username}:${scheme.auth.password}`
+      ).toString("base64")}`,
+      Accept: "application/json",
+    };
   }
 
   for (const scheme of schemes) {
@@ -141,7 +193,7 @@ describe.skipIf(!RUN)("Jira DC live contract", () => {
       let adapter: JiraAdapter;
 
       beforeEach(async () => {
-        adapter = adapterFor(scheme);
+        adapter = adapterFor();
         await adapter.authenticate(scheme.auth);
       });
 
@@ -187,6 +239,46 @@ describe.skipIf(!RUN)("Jira DC live contract", () => {
               f.schema?.type === "user"
           )
         ).toBe(true);
+      });
+
+      // #5b — Write a user-picker custom field (worklist #7, D1 userRef).
+      // Test #5 proves the sandbox has one configured but never writes to
+      // it; this closes that gap. If mapCustomFieldUserRefs sent the wrong
+      // shape ({ accountId } instead of { name } on DC), Jira rejects the
+      // write and createIssue throws before the assertions below run.
+      it("#5b createIssue: writes a user-picker custom field ({accountId} -> {name} on DC)", async () => {
+        const types = await adapter.getIssueTypes(PROJECT_KEY!);
+        const task = types.find((t) => t.name === "Task")!;
+        const fields = await adapter.getIssueTypeFields(
+          PROJECT_KEY!,
+          task.id
+        );
+        const userField = fields.find(
+          (f: any) =>
+            f.key?.startsWith("customfield_") && f.schema?.type === "user"
+        );
+        expect(userField).toBeDefined();
+
+        const me = await adapter.getCurrentUser();
+        expect(me).not.toBeNull();
+
+        const issue = await adapter.createIssue({
+          title: "IT contract: user-picker custom field",
+          projectId: PROJECT_KEY!,
+          issueType: task.id,
+          customFields: { [userField!.key]: { accountId: me!.accountId } },
+        });
+        createdKeys.push(issue.key);
+
+        // Read the field back directly — adapter.getIssue()'s fixed field
+        // list doesn't request custom fields, so bypass it here.
+        const headers = headersForScheme(scheme);
+        const raw = await fetch(
+          `${BASE_URL}/rest/api/2/issue/${issue.key}?fields=${userField!.key}`,
+          { headers }
+        );
+        const rawBody = await raw.json();
+        expect(rawBody.fields?.[userField!.key]).toBeTruthy();
       });
 
       // #6 — Create issue with a plain-text description (DC: string, NOT ADF)
@@ -258,18 +350,50 @@ describe.skipIf(!RUN)("Jira DC live contract", () => {
       });
 
       // #9 — Transitions
-      it("#9 transitions: returns available transitions", async () => {
+      it("#9 transitions: executes a transition and reverts it", async () => {
         const issue = await adapter.createIssue({
           title: "IT contract: transition",
           projectId: PROJECT_KEY!,
           issueType: "3",
         });
         createdKeys.push(issue.key);
-        // transitionIssue is private; the public path is updateIssue with
-        // status. Fetch transitions indirectly via updateIssue to a known
-        // status. We just verify the issue can be fetched with status.
-        const fetched = await adapter.getIssue(issue.key);
-        expect(fetched.status).toBeTruthy();
+
+        const headers = headersForScheme(scheme);
+        const before = await adapter.getIssue(issue.key);
+        const originalStatus = before.status;
+
+        // transitionIssue() is private; the public path is updateIssue with
+        // a target status name. Discover an actual available transition via
+        // the raw REST endpoint rather than guessing a status name.
+        const transitionsResp = await fetch(
+          `${BASE_URL}/rest/api/2/issue/${issue.key}/transitions`,
+          { headers }
+        );
+        const { transitions } = await transitionsResp.json();
+        const forward = (transitions || []).find(
+          (t: any) => t.to?.name && t.to.name !== originalStatus
+        );
+        expect(forward).toBeDefined();
+
+        await adapter.updateIssue(issue.key, { status: forward.to.name });
+        const afterForward = await adapter.getIssue(issue.key);
+        expect(afterForward.status).toBe(forward.to.name);
+
+        // Best-effort revert — not every workflow has a transition straight
+        // back to the original status, so this doesn't assert.
+        const backResp = await fetch(
+          `${BASE_URL}/rest/api/2/issue/${issue.key}/transitions`,
+          { headers }
+        );
+        const { transitions: backTransitions } = await backResp.json();
+        const back = (backTransitions || []).find(
+          (t: any) => t.to?.name === originalStatus
+        );
+        if (back) {
+          await adapter.updateIssue(issue.key, { status: back.to.name });
+          const afterBack = await adapter.getIssue(issue.key);
+          expect(afterBack.status).toBe(originalStatus);
+        }
       });
 
       // #10 — Search with startAt pagination (DC: startAt/total, NOT nextPageToken)
@@ -288,6 +412,42 @@ describe.skipIf(!RUN)("Jira DC live contract", () => {
         // hasMore must be computable from startAt+issues.length < total.
         expect(typeof res.hasMore).toBe("boolean");
         expect(typeof res.total).toBe("number");
+      });
+
+      // #10b — Pagination cursor (worklist #8): DC's classic /search has no
+      // cursor of its own, so the adapter must synthesize a nextPageToken
+      // from startAt, or SyncService.performProjectImport can never advance
+      // past page 1 (see JiraAdapter.searchIssues and the unit tests in
+      // JiraAdapter.test.ts for the mocked version of this regression).
+      it("#10b searchIssues: nextPageToken advances past page 1", async () => {
+        const a = await adapter.createIssue({
+          title: "IT contract: page 1",
+          projectId: PROJECT_KEY!,
+          issueType: "3",
+        });
+        createdKeys.push(a.key);
+        const b = await adapter.createIssue({
+          title: "IT contract: page 2",
+          projectId: PROJECT_KEY!,
+          issueType: "3",
+        });
+        createdKeys.push(b.key);
+
+        const page1 = await adapter.searchIssues({
+          projectId: PROJECT_KEY,
+          limit: 1,
+        });
+        expect(page1.issues.length).toBe(1);
+        expect(page1.hasMore).toBe(true);
+        expect(page1.nextPageToken).toBeTruthy();
+
+        const page2 = await adapter.searchIssues({
+          projectId: PROJECT_KEY,
+          limit: 1,
+          pageToken: page1.nextPageToken,
+        });
+        expect(page2.issues.length).toBeGreaterThan(0);
+        expect(page2.issues[0]!.id).not.toBe(page1.issues[0]!.id);
       });
 
       // #11 — User search (DC: ?username=, NOT ?query=)

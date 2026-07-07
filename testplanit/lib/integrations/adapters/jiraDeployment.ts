@@ -185,6 +185,42 @@ export function userRefField(
   return { accountId: id };
 }
 
+function isUserRefValue(
+  value: unknown
+): value is { accountId?: string; name?: string; key?: string } {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    typeof (value as { accountId?: unknown }).accountId === "string"
+  );
+}
+
+/**
+ * Remap custom-field values shaped like a user reference through
+ * `userRefField`. The create-issue form (and the reporter lookup in the
+ * create-issue route) always emit a user-picker value as `{ accountId }` —
+ * Jira's own Cloud convention — regardless of deployment. On Cloud that
+ * shape is already correct and passes through untouched; on Server/Data
+ * Center it must become `{ name }`, or Jira rejects the write. Every other
+ * custom-field value (option/priority/version/component refs, plain
+ * strings, arrays) is passed through unchanged.
+ */
+export function mapCustomFieldUserRefs(
+  customFields: Record<string, unknown> | undefined,
+  deployment: JiraDeploymentType
+): Record<string, unknown> {
+  if (!customFields) return {};
+  if (deployment !== "server") return customFields;
+  const mapped: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(customFields)) {
+    mapped[key] = isUserRefValue(value)
+      ? userRefField(value, deployment)
+      : value;
+  }
+  return mapped;
+}
+
 /**
  * Extract plain text from a description/comment value for Server/DC, where
  * the REST API v2 expects a plain string (not ADF). Handles:

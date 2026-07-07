@@ -50,6 +50,11 @@ interface TestConnectionResult {
      *  (manual sync, webhook-triggered auto-create / refresh). */
     readIssue?: CapabilityProbe;
   };
+  /** Settings keys resolved by this test (currently Jira's deploymentType /
+   *  authScheme) that the route merges into the integration's stored
+   *  settings on success — fill-missing-only, so a later re-test never
+   *  flips an already-resolved key on a working integration. */
+  resolvedSettings?: Record<string, string>;
 }
 
 /**
@@ -220,6 +225,17 @@ async function testJiraConnection(
           connection = await probe(`${baseUrl}/rest/api/2/myself`, {
             headers,
           });
+        } else if (!email && !username) {
+          // serverInfo reports Cloud but v3 /myself failed. With no
+          // email/username, the initial scheme guess was Bearer with a bare
+          // token — Cloud's API-key auth only accepts Basic email:apiToken,
+          // so that guess can never succeed here. Surface this explicitly
+          // instead of an opaque 401/403.
+          connection = {
+            ...v3Probe,
+            error:
+              "Jira Cloud authentication requires an email address paired with the API token (Basic auth) — a bare API token alone cannot authenticate against Jira Cloud.",
+          };
         } else {
           connection = v3Probe;
         }
@@ -280,6 +296,13 @@ async function testJiraConnection(
             readIssue,
           }),
       capabilities: { connection, searchIssues, readIssue },
+      // D4: the caller merges these into integration.settings fill-missing
+      // -only, so detection becomes a one-time event instead of a 3-round
+      // -trip probe chain on every adapter-cache miss (see JiraAdapter's
+      // deploymentResolved / authSchemeOverride constructor short-circuit).
+      resolvedSettings: success
+        ? { deploymentType: deployment, authScheme: scheme }
+        : undefined,
     };
   }
 
@@ -880,6 +903,12 @@ export const POST = withAuditContext(async (req: NextRequest) => {
         data: {
           status: "ACTIVE",
           lastSyncAt: new Date(),
+          // D4: fill-missing-only merge — an already-set key in the saved
+          // settings always wins, so a later re-test never flips a working
+          // integration's resolved deploymentType/authScheme.
+          ...(result.resolvedSettings && {
+            settings: { ...result.resolvedSettings, ...testSettings },
+          }),
         },
       });
     }

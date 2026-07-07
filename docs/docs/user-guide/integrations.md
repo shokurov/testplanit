@@ -232,11 +232,11 @@ Two credential shapes are supported (pick one):
   Jira URL: https://jira.mycompany.domain
   ```
 
-- **Username + password (Basic)** — enter the Jira username in **Email** and the account password in **API Token**. TestPlanIt sends `Authorization: Basic <base64(username:password)>`.
+- **Username + password (Basic)** — leave **Email** and **API Token** blank and fill in the **Username** and **Password** fields instead. TestPlanIt sends `Authorization: Basic <base64(username:password)>`.
 
   ```text
-  Email: your-username
-  API Token: your-password
+  Username: your-username
+  Password: your-password
   Jira URL: https://jira.mycompany.domain
   ```
 

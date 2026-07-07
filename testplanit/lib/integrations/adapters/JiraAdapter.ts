@@ -17,8 +17,10 @@ import {
   JiraAuthScheme,
   JiraDeploymentType,
   contentToString,
+  mapCustomFieldUserRefs,
   pickUserId,
   resolveAuthScheme,
+  userRefField,
 } from "./jiraDeployment";
 
 /**
@@ -31,8 +33,6 @@ export class JiraAdapter extends BaseAdapter {
   private clientSecret: string;
   private redirectUri: string;
   private cloudId?: string;
-  private apiEmail?: string;
-  private apiToken?: string;
   private baseUrl?: string;
   private deployment: JiraDeploymentType = "cloud";
   private apiVersion: JiraApiVersion = "3";
@@ -165,9 +165,6 @@ export class JiraAdapter extends BaseAdapter {
       // even when an email was supplied).
       this.authScheme = resolveAuthScheme(this.authCreds, this.authSchemeOverride);
       this.baseUrl = baseUrl;
-      // Keep legacy fields populated for any code that still reads them.
-      this.apiEmail = authData.email;
-      this.apiToken = authData.apiToken;
 
       let authHeader = buildAuthHeader(this.authCreds, this.authScheme);
       let headers = {
@@ -237,6 +234,15 @@ export class JiraAdapter extends BaseAdapter {
               );
             }
             this.apiKeyAuthActive = true;
+          } else if (!this.authCreds.email && !this.authCreds.username) {
+            // serverInfo reports Cloud but v3 /myself failed. With no
+            // email/username, the initial scheme guess was Bearer with a
+            // bare token — Cloud's API-key auth only accepts Basic
+            // email:apiToken, so that guess can never succeed here. Surface
+            // this explicitly instead of an opaque 401/403.
+            throw new Error(
+              "Jira Cloud authentication requires an email address paired with the API token (Basic auth) — a bare API token alone cannot authenticate against Jira Cloud."
+            );
           } else {
             // serverInfo reports Cloud but v3 /myself 404'd — surface the
             // original failure rather than silently switching versions.
@@ -559,17 +565,16 @@ export class JiraAdapter extends BaseAdapter {
         issuetype: { id: data.issueType || "10001" }, // Default to Task
         priority: JiraAdapter.mapPriorityField(data.priority),
         assignee: data.assigneeId
-          ? this.deployment === "server"
-            ? { name: data.assigneeId }
-            : { id: data.assigneeId }
+          ? userRefField({ accountId: data.assigneeId }, this.deployment)
           : undefined,
+        // Reporter is a system field, not a custom field — routed through
+        // the same userRef mapper as assignee and user-picker custom fields
+        // below so every user reference in the payload uses one rule.
         reporter: reporter
-          ? this.deployment === "server"
-            ? { name: (reporter as any).accountId ?? (reporter as any).name }
-            : reporter // Reporter is a system field, not custom
+          ? userRefField(reporter as any, this.deployment)
           : undefined,
         labels: data.labels || [],
-        ...otherCustomFields,
+        ...mapCustomFieldUserRefs(otherCustomFields, this.deployment),
       },
     };
 
@@ -664,10 +669,10 @@ export class JiraAdapter extends BaseAdapter {
     }
 
     if (data.assigneeId !== undefined) {
-      updatePayload.fields.assignee =
-        this.deployment === "server"
-          ? { name: data.assigneeId }
-          : { id: data.assigneeId };
+      updatePayload.fields.assignee = userRefField(
+        { accountId: data.assigneeId },
+        this.deployment
+      );
     }
 
     if (data.labels !== undefined) {
@@ -675,7 +680,10 @@ export class JiraAdapter extends BaseAdapter {
     }
 
     if (data.customFields) {
-      Object.assign(updatePayload.fields, data.customFields);
+      Object.assign(
+        updatePayload.fields,
+        mapCustomFieldUserRefs(data.customFields, this.deployment)
+      );
     }
 
     await this.makeRequest<any>(this.buildUrl(`/rest/api/${this.apiVersion}/issue/${issueId}`), {
@@ -839,18 +847,30 @@ export class JiraAdapter extends BaseAdapter {
     const issues = (response.issues || []).map((issue: any) =>
       this.mapJiraIssue(issue)
     );
-    const nextPageToken: string | undefined = response.nextPageToken;
+    const cloudNextPageToken: string | undefined = response.nextPageToken;
     // Prefer the cursor / isLast flag the new endpoint provides; fall back to
     // the legacy total+startAt math only if the response still carries them
     // (older Server/DC instances), then to "a full page implies more".
     const hasMore =
       typeof response.isLast === "boolean"
         ? !response.isLast
-        : nextPageToken
+        : cloudNextPageToken
           ? true
           : typeof response.total === "number"
             ? (response.startAt || 0) + issues.length < response.total
             : issues.length >= (options.limit || 50);
+
+    // Server/Data Center's classic /search endpoint has no cursor of its own
+    // (no nextPageToken, no isLast) — it pages by startAt. Synthesize one so
+    // callers that only advance via pageToken (SyncService.
+    // performProjectImport) don't re-read page 1 forever: the deployment
+    // already accepts an incoming pageToken as startAt (see options.pageToken
+    // handling above).
+    const nextPageToken =
+      cloudNextPageToken ??
+      (this.deployment === "server" && hasMore
+        ? String((response.startAt ?? 0) + issues.length)
+        : undefined);
 
     return {
       issues,
