@@ -488,7 +488,21 @@ export class JiraAdapter extends BaseAdapter {
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
-      return response.json();
+      // Jira returns 204 No Content for several write endpoints (issue
+      // update, transition execution) — response.json() throws "Unexpected
+      // end of JSON input" on the empty body. Short-circuit the common case
+      // and fall back gracefully for any other empty-but-ok response.
+      if (response.status === 204) {
+        return undefined as T;
+      }
+      try {
+        return await response.json();
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          return undefined as T;
+        }
+        throw error;
+      }
     }
 
     // Otherwise use the base class implementation for OAuth

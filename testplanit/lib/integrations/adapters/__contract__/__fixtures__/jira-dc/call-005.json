@@ -1,205 +1,35 @@
 {
   "name": "call-005",
   "request": {
-    "method": "GET",
-    "url": "https://jira.rapidsoft.ru/rest/api/2/search?jql=project+%3D+TITP+ORDER+BY+created+DESC&maxResults=50&fields=summary%2Cdescription%2Cstatus%2Cpriority%2Cissuetype%2Cassignee%2Creporter%2Clabels%2Ccreated%2Cupdated",
+    "method": "POST",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
       "Authorization": "<redacted>"
+    },
+    "body": {
+      "fields": {
+        "project": {
+          "key": "TITP"
+        },
+        "summary": "IT contract: page 2",
+        "description": "",
+        "issuetype": {
+          "id": "3"
+        },
+        "labels": []
+      }
     }
   },
   "response": {
-    "status": 200,
-    "statusText": "OK",
+    "status": 201,
+    "statusText": "Created",
     "body": {
-      "expand": "schema,names",
-      "startAt": 0,
-      "maxResults": 50,
-      "total": 3,
-      "issues": [
-        {
-          "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
-          "id": "192118",
-          "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192118",
-          "key": "TITP-17",
-          "fields": {
-            "summary": "IT contract: search",
-            "issuetype": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/3",
-              "id": "3",
-              "description": "A task that needs to be done.",
-              "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11138&avatarType=issuetype",
-              "name": "Task",
-              "subtask": false,
-              "avatarId": 11138
-            },
-            "created": "2026-07-06T15:11:27.000+0300",
-            "description": null,
-            "reporter": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
-              "name": "testplanit",
-              "key": "JIRAUSER16307",
-              "emailAddress": "testplanit@rapidsoft.ru",
-              "avatarUrls": {
-                "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
-                "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
-                "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
-                "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
-              },
-              "displayName": "TestPlanIt",
-              "active": true,
-              "timeZone": "Europe/Moscow"
-            },
-            "assignee": null,
-            "priority": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/4",
-              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/minor.svg",
-              "name": "Minor",
-              "id": "4"
-            },
-            "updated": "2026-07-06T15:11:27.000+0300",
-            "labels": [],
-            "status": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/status/10014",
-              "description": "",
-              "iconUrl": "https://jira.rapidsoft.ru/images/icons/statuses/open.png",
-              "name": "To Do",
-              "id": "10014",
-              "statusCategory": {
-                "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/2",
-                "id": 2,
-                "key": "new",
-                "colorName": "default",
-                "name": "To Do"
-              }
-            }
-          },
-          "renderedFields": null
-        },
-        {
-          "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
-          "id": "192106",
-          "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192106",
-          "key": "TITP-5",
-          "fields": {
-            "summary": "IT contract: create ADF (should fail)",
-            "issuetype": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/3",
-              "id": "3",
-              "description": "A task that needs to be done.",
-              "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11138&avatarType=issuetype",
-              "name": "Task",
-              "subtask": false,
-              "avatarId": 11138
-            },
-            "created": "2026-07-06T15:04:32.000+0300",
-            "description": "ADF body",
-            "reporter": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
-              "name": "testplanit",
-              "key": "JIRAUSER16307",
-              "emailAddress": "testplanit@rapidsoft.ru",
-              "avatarUrls": {
-                "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
-                "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
-                "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
-                "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
-              },
-              "displayName": "TestPlanIt",
-              "active": true,
-              "timeZone": "Europe/Moscow"
-            },
-            "assignee": null,
-            "priority": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/4",
-              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/minor.svg",
-              "name": "Minor",
-              "id": "4"
-            },
-            "updated": "2026-07-06T15:04:32.000+0300",
-            "labels": [],
-            "status": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/status/10014",
-              "description": "",
-              "iconUrl": "https://jira.rapidsoft.ru/images/icons/statuses/open.png",
-              "name": "To Do",
-              "id": "10014",
-              "statusCategory": {
-                "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/2",
-                "id": 2,
-                "key": "new",
-                "colorName": "default",
-                "name": "To Do"
-              }
-            }
-          },
-          "renderedFields": null
-        },
-        {
-          "expand": "operations,versionedRepresentations,editmeta,changelog,renderedFields",
-          "id": "192104",
-          "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192104",
-          "key": "TITP-3",
-          "fields": {
-            "summary": "IT contract: create ADF (should fail)",
-            "issuetype": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/3",
-              "id": "3",
-              "description": "A task that needs to be done.",
-              "iconUrl": "https://jira.rapidsoft.ru/secure/viewavatar?size=xsmall&avatarId=11138&avatarType=issuetype",
-              "name": "Task",
-              "subtask": false,
-              "avatarId": 11138
-            },
-            "created": "2026-07-06T15:04:30.000+0300",
-            "description": "ADF body",
-            "reporter": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
-              "name": "testplanit",
-              "key": "JIRAUSER16307",
-              "emailAddress": "testplanit@rapidsoft.ru",
-              "avatarUrls": {
-                "48x48": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=48",
-                "24x24": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=24",
-                "16x16": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=16",
-                "32x32": "https://www.gravatar.com/avatar/93c1c5a293635996083e6b0d5236b500?d=mm&s=32"
-              },
-              "displayName": "TestPlanIt",
-              "active": true,
-              "timeZone": "Europe/Moscow"
-            },
-            "assignee": null,
-            "priority": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/priority/4",
-              "iconUrl": "https://jira.rapidsoft.ru/images/icons/priorities/minor.svg",
-              "name": "Minor",
-              "id": "4"
-            },
-            "updated": "2026-07-06T15:04:30.000+0300",
-            "labels": [],
-            "status": {
-              "self": "https://jira.rapidsoft.ru/rest/api/2/status/10014",
-              "description": "",
-              "iconUrl": "https://jira.rapidsoft.ru/images/icons/statuses/open.png",
-              "name": "To Do",
-              "id": "10014",
-              "statusCategory": {
-                "self": "https://jira.rapidsoft.ru/rest/api/2/statuscategory/2",
-                "id": 2,
-                "key": "new",
-                "colorName": "default",
-                "name": "To Do"
-              }
-            }
-          },
-          "renderedFields": null
-        }
-      ],
-      "warningMessages": null,
-      "names": null,
-      "schema": null
+      "id": "192196",
+      "key": "TITP-91",
+      "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192196"
     }
   },
-  "recordedAt": "2026-07-06T12:11:27.842Z"
+  "recordedAt": "2026-07-07T12:29:42.689Z"
 }

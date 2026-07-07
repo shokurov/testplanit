@@ -1,8 +1,8 @@
 {
-  "name": "call-004",
+  "name": "call-016",
   "request": {
     "method": "GET",
-    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/TITP-90?fields=summary%2Cdescription%2Cstatus%2Cpriority%2Cissuetype%2Cassignee%2Creporter%2Clabels%2Ccreated%2Cupdated&expand=names%2Cschema",
+    "url": "https://jira.rapidsoft.ru/rest/api/2/issue/TITP-88?fields=summary%2Cdescription%2Cstatus%2Cpriority%2Cissuetype%2Cassignee%2Creporter%2Clabels%2Ccreated%2Cupdated&expand=names%2Cschema",
     "headers": {
       "Content-Type": "application/json",
       "Accept": "application/json",
@@ -14,11 +14,11 @@
     "statusText": "OK",
     "body": {
       "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
-      "id": "192195",
-      "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192195",
-      "key": "TITP-90",
+      "id": "192193",
+      "self": "https://jira.rapidsoft.ru/rest/api/2/issue/192193",
+      "key": "TITP-88",
       "fields": {
-        "summary": "IT contract: page 1",
+        "summary": "IT contract: transition",
         "issuetype": {
           "self": "https://jira.rapidsoft.ru/rest/api/2/issuetype/3",
           "id": "3",
@@ -28,7 +28,7 @@
           "subtask": false,
           "avatarId": 11138
         },
-        "created": "2026-07-07T15:29:42.101+0300",
+        "created": "2026-07-07T15:29:39.608+0300",
         "description": null,
         "reporter": {
           "self": "https://jira.rapidsoft.ru/rest/api/2/user?username=testplanit",
@@ -52,7 +52,7 @@
           "name": "Minor",
           "id": "4"
         },
-        "updated": "2026-07-07T15:29:42.101+0300",
+        "updated": "2026-07-07T15:29:40.751+0300",
         "labels": [],
         "status": {
           "self": "https://jira.rapidsoft.ru/rest/api/2/status/10014",
@@ -127,5 +127,5 @@
       }
     }
   },
-  "recordedAt": "2026-07-07T12:29:42.494Z"
+  "recordedAt": "2026-07-07T12:29:41.091Z"
 }

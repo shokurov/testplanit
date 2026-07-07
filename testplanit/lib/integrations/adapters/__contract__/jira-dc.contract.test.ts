@@ -42,7 +42,13 @@ function loadEnvFile() {
   for (const p of candidates) {
     try {
       const text = readFileSync(p, "utf8");
-      for (const line of text.split("\n")) {
+      // Split on \r?\n, not just \n: a CRLF file (the common case when the
+      // .env is created on Windows) otherwise leaves a trailing \r on every
+      // line. JS regex `.` treats \r as a line terminator, so `(.*)$`
+      // without the /m flag can never reach it — the match silently fails
+      // for every line, no env vars get set, and the suite skips with 0
+      // tests instead of erroring, which is exactly what happened here.
+      for (const line of text.split(/\r?\n/)) {
         const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
         if (m && !(m[1] in process.env)) {
           process.env[m[1]] = m[2];
