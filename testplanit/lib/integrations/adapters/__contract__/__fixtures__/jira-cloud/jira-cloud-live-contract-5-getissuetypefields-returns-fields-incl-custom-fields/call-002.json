@@ -1,0 +1,376 @@
+{
+  "name": "call-002",
+  "request": {
+    "method": "GET",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/issue/createmeta?projectKeys=TITP&issuetypeIds=10007&expand=projects.issuetypes.fields",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "expand": "projects",
+      "projects": [
+        {
+          "expand": "issuetypes",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/project/10001",
+          "id": "10001",
+          "key": "TITP",
+          "name": "TITP",
+          "avatarUrls": {
+            "48x48": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417",
+            "24x24": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=small",
+            "16x16": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=xsmall",
+            "32x32": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=medium"
+          },
+          "issuetypes": [
+            {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "untranslatedName": "Task",
+              "subtask": false,
+              "hierarchyLevel": 0,
+              "expand": "fields",
+              "fields": {
+                "summary": {
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "system": "summary"
+                  },
+                  "name": "Summary",
+                  "key": "summary",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "issuetype": {
+                  "required": true,
+                  "schema": {
+                    "type": "issuetype",
+                    "system": "issuetype"
+                  },
+                  "name": "Issue Type",
+                  "key": "issuetype",
+                  "hasDefaultValue": false,
+                  "operations": [],
+                  "allowedValues": [
+                    {
+                      "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+                      "id": "10007",
+                      "description": "A small, distinct piece of work.",
+                      "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+                      "name": "Task",
+                      "subtask": false,
+                      "avatarId": 10318,
+                      "hierarchyLevel": 0
+                    }
+                  ]
+                },
+                "parent": {
+                  "required": false,
+                  "schema": {
+                    "type": "issuelink",
+                    "system": "parent"
+                  },
+                  "name": "Parent",
+                  "key": "parent",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "components": {
+                  "required": false,
+                  "schema": {
+                    "type": "array",
+                    "items": "component",
+                    "system": "components"
+                  },
+                  "name": "Components",
+                  "key": "components",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "add",
+                    "set",
+                    "remove"
+                  ],
+                  "allowedValues": []
+                },
+                "description": {
+                  "required": false,
+                  "schema": {
+                    "type": "string",
+                    "system": "description"
+                  },
+                  "name": "Description",
+                  "key": "description",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "project": {
+                  "required": true,
+                  "schema": {
+                    "type": "project",
+                    "system": "project"
+                  },
+                  "name": "Project",
+                  "key": "project",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ],
+                  "allowedValues": [
+                    {
+                      "self": "https://testplanit-integration.atlassian.net/rest/api/3/project/10001",
+                      "id": "10001",
+                      "key": "TITP",
+                      "name": "TITP",
+                      "projectTypeKey": "software",
+                      "simplified": false,
+                      "avatarUrls": {
+                        "48x48": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417",
+                        "24x24": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=small",
+                        "16x16": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=xsmall",
+                        "32x32": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=medium"
+                      }
+                    }
+                  ]
+                },
+                "customfield_10043": {
+                  "required": true,
+                  "schema": {
+                    "type": "string",
+                    "custom": "com.atlassian.jira.plugin.system.customfieldtypes:textfield",
+                    "customId": 10043
+                  },
+                  "name": "IT Required Field",
+                  "key": "customfield_10043",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "fixVersions": {
+                  "required": false,
+                  "schema": {
+                    "type": "array",
+                    "items": "version",
+                    "system": "fixVersions"
+                  },
+                  "name": "Fix versions",
+                  "key": "fixVersions",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set",
+                    "add",
+                    "remove"
+                  ],
+                  "allowedValues": []
+                },
+                "customfield_10044": {
+                  "required": false,
+                  "schema": {
+                    "type": "user",
+                    "custom": "com.atlassian.jira.plugin.system.customfieldtypes:userpicker",
+                    "customId": 10044
+                  },
+                  "name": "IT User Picker",
+                  "key": "customfield_10044",
+                  "autoCompleteUrl": "https://testplanit-integration.atlassian.net/rest/api/1.0/users/picker?fieldName=customfield_10044&fieldConfigId=10147&projectId=10001&showAvatar=true&query=",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "priority": {
+                  "required": false,
+                  "schema": {
+                    "type": "priority",
+                    "system": "priority"
+                  },
+                  "name": "Priority",
+                  "key": "priority",
+                  "hasDefaultValue": true,
+                  "operations": [
+                    "set"
+                  ],
+                  "allowedValues": [
+                    {
+                      "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/1",
+                      "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/highest_new.svg",
+                      "name": "Highest",
+                      "id": "1"
+                    },
+                    {
+                      "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/2",
+                      "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/high_new.svg",
+                      "name": "High",
+                      "id": "2"
+                    },
+                    {
+                      "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+                      "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+                      "name": "Medium",
+                      "id": "3"
+                    },
+                    {
+                      "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/4",
+                      "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/low_new.svg",
+                      "name": "Low",
+                      "id": "4"
+                    },
+                    {
+                      "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/5",
+                      "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/lowest_new.svg",
+                      "name": "Lowest",
+                      "id": "5"
+                    }
+                  ],
+                  "defaultValue": {
+                    "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+                    "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+                    "name": "Medium",
+                    "id": "3"
+                  }
+                },
+                "customfield_10001": {
+                  "required": false,
+                  "schema": {
+                    "type": "team",
+                    "custom": "com.atlassian.jira.plugin.system.customfieldtypes:atlassian-team",
+                    "customId": 10001,
+                    "configuration": {
+                      "com.atlassian.jira.plugin.system.customfieldtypes:atlassian-team": true
+                    }
+                  },
+                  "name": "Team",
+                  "key": "customfield_10001",
+                  "autoCompleteUrl": "https://testplanit-integration.atlassian.net/gateway/api/v1/recommendations",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "labels": {
+                  "required": false,
+                  "schema": {
+                    "type": "array",
+                    "items": "string",
+                    "system": "labels"
+                  },
+                  "name": "Labels",
+                  "key": "labels",
+                  "autoCompleteUrl": "https://testplanit-integration.atlassian.net/rest/api/1.0/labels/suggest?query=",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "add",
+                    "set",
+                    "remove"
+                  ]
+                },
+                "timetracking": {
+                  "required": false,
+                  "schema": {
+                    "type": "timetracking",
+                    "system": "timetracking"
+                  },
+                  "name": "Time tracking",
+                  "key": "timetracking",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set",
+                    "edit"
+                  ]
+                },
+                "customfield_10015": {
+                  "required": false,
+                  "schema": {
+                    "type": "date",
+                    "custom": "com.atlassian.jira.plugin.system.customfieldtypes:datepicker",
+                    "customId": 10015
+                  },
+                  "name": "Start date",
+                  "key": "customfield_10015",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "attachment": {
+                  "required": false,
+                  "schema": {
+                    "type": "array",
+                    "items": "attachment",
+                    "system": "attachment"
+                  },
+                  "name": "Attachment",
+                  "key": "attachment",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set",
+                    "copy"
+                  ]
+                },
+                "duedate": {
+                  "required": false,
+                  "schema": {
+                    "type": "date",
+                    "system": "duedate"
+                  },
+                  "name": "Due date",
+                  "key": "duedate",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                },
+                "issuelinks": {
+                  "required": false,
+                  "schema": {
+                    "type": "array",
+                    "items": "issuelinks",
+                    "system": "issuelinks"
+                  },
+                  "name": "Linked Issues",
+                  "key": "issuelinks",
+                  "autoCompleteUrl": "https://testplanit-integration.atlassian.net/rest/api/3/issue/picker?currentProjectId=&showSubTaskParent=true&showSubTasks=true&currentIssueKey=null&query=",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "add",
+                    "copy"
+                  ]
+                },
+                "assignee": {
+                  "required": false,
+                  "schema": {
+                    "type": "user",
+                    "system": "assignee"
+                  },
+                  "name": "Assignee",
+                  "key": "assignee",
+                  "autoCompleteUrl": "https://testplanit-integration.atlassian.net/rest/api/3/user/assignable/search?project=TITP&query=",
+                  "hasDefaultValue": false,
+                  "operations": [
+                    "set"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "recordedAt": "2026-07-08T12:40:39.229Z"
+}

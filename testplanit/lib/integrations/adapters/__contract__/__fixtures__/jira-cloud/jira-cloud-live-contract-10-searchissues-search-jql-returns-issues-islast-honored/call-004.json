@@ -1,0 +1,1214 @@
+{
+  "name": "call-004",
+  "request": {
+    "method": "GET",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/search/jql?jql=project+%3D+TITP+ORDER+BY+created+DESC&maxResults=50&fields=summary%2Cdescription%2Cstatus%2Cpriority%2Cissuetype%2Cassignee%2Creporter%2Clabels%2Ccreated%2Cupdated",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "issues": [
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10022",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10022",
+          "key": "TITP-18",
+          "fields": {
+            "summary": "IT contract: search",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:41:05.670+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:41:05.738+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10021",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10021",
+          "key": "TITP-17",
+          "fields": {
+            "summary": "IT contract: transition",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:58.192+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:41:02.968+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10020",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10020",
+          "key": "TITP-16",
+          "fields": {
+            "summary": "IT contract: comment",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:55.270+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:56.324+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10019",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10019",
+          "key": "TITP-15",
+          "fields": {
+            "summary": "IT contract: user-picker custom field",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:52.208+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:52.283+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10018",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10018",
+          "key": "TITP-14",
+          "fields": {
+            "summary": "IT contract: assignee accountId",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:48.802+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:48.879+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10017",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10017",
+          "key": "TITP-13",
+          "fields": {
+            "summary": "IT contract: TipTap description",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:46.113+0500",
+            "description": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "tiptap body"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:46.212+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10016",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10016",
+          "key": "TITP-12",
+          "fields": {
+            "summary": "IT contract: HTML description",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:43.777+0500",
+            "description": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "html body"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "second paragraph"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:43.889+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10015",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10015",
+          "key": "TITP-11",
+          "fields": {
+            "summary": "IT contract: plain description",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:41.307+0500",
+            "description": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "plain string body from the cloud contract suite"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:41.411+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10014",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10014",
+          "key": "TITP-10",
+          "fields": {
+            "summary": "IT contract: page 2",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:08.611+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:08.687+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10013",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10013",
+          "key": "TITP-9",
+          "fields": {
+            "summary": "IT contract: page 1",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:07.399+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:07.471+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10012",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10012",
+          "key": "TITP-8",
+          "fields": {
+            "summary": "IT contract: search",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:40:04.788+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:04.868+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10011",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10011",
+          "key": "TITP-7",
+          "fields": {
+            "summary": "IT contract: transition",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:39:57.445+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:40:02.321+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10010",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10010",
+          "key": "TITP-6",
+          "fields": {
+            "summary": "IT contract: comment",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:39:54.196+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:39:55.400+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10009",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10009",
+          "key": "TITP-5",
+          "fields": {
+            "summary": "IT contract: user-picker custom field",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:39:51.580+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:39:51.651+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10008",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10008",
+          "key": "TITP-4",
+          "fields": {
+            "summary": "IT contract: assignee accountId",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:39:48.277+0500",
+            "description": null,
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:39:48.331+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10007",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10007",
+          "key": "TITP-3",
+          "fields": {
+            "summary": "IT contract: TipTap description",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:39:45.532+0500",
+            "description": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "tiptap body"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:39:45.601+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10006",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10006",
+          "key": "TITP-2",
+          "fields": {
+            "summary": "IT contract: HTML description",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:39:43.398+0500",
+            "description": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "html body"
+                    }
+                  ]
+                },
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "second paragraph"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:39:43.507+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        },
+        {
+          "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+          "id": "10005",
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10005",
+          "key": "TITP-1",
+          "fields": {
+            "summary": "IT contract: plain description",
+            "issuetype": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+              "id": "10007",
+              "description": "A small, distinct piece of work.",
+              "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+              "name": "Task",
+              "subtask": false,
+              "avatarId": 10318,
+              "hierarchyLevel": 0
+            },
+            "created": "2026-07-08T17:39:39.888+0500",
+            "description": {
+              "type": "doc",
+              "version": 1,
+              "content": [
+                {
+                  "type": "paragraph",
+                  "content": [
+                    {
+                      "type": "text",
+                      "text": "plain string body from the cloud contract suite"
+                    }
+                  ]
+                }
+              ]
+            },
+            "reporter": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+              "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+              "emailAddress": "egors@etlkit.org",
+              "avatarUrls": {
+                "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+                "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+              },
+              "displayName": "Egor Shokurov",
+              "active": true,
+              "timeZone": "Asia/Qyzylorda",
+              "accountType": "atlassian"
+            },
+            "assignee": null,
+            "priority": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+              "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+              "name": "Medium",
+              "id": "3"
+            },
+            "updated": "2026-07-08T17:39:40.825+0500",
+            "status": {
+              "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+              "description": "",
+              "iconUrl": "https://testplanit-integration.atlassian.net/",
+              "name": "To Do",
+              "id": "10004",
+              "statusCategory": {
+                "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+                "id": 2,
+                "key": "new",
+                "colorName": "blue-gray",
+                "name": "To Do"
+              }
+            },
+            "labels": []
+          }
+        }
+      ],
+      "isLast": true
+    }
+  },
+  "recordedAt": "2026-07-08T12:41:05.989Z"
+}

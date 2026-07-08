@@ -1,0 +1,21 @@
+{
+  "name": "call-006",
+  "request": {
+    "method": "PUT",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/issue/TITP-17",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "fields": {}
+    }
+  },
+  "response": {
+    "status": 204,
+    "statusText": "No Content",
+    "body": ""
+  },
+  "recordedAt": "2026-07-08T12:40:59.088Z"
+}

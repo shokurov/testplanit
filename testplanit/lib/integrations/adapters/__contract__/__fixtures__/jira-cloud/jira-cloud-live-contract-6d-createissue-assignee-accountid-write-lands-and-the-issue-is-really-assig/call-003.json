@@ -1,0 +1,40 @@
+{
+  "name": "call-003",
+  "request": {
+    "method": "POST",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/issue",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "fields": {
+        "project": {
+          "key": "TITP"
+        },
+        "summary": "IT contract: assignee accountId",
+        "description": null,
+        "issuetype": {
+          "id": "10007"
+        },
+        "assignee": {
+          "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263"
+        },
+        "labels": [],
+        "customfield_10041": "contract suite value",
+        "customfield_10043": "contract suite value"
+      }
+    }
+  },
+  "response": {
+    "status": 201,
+    "statusText": "Created",
+    "body": {
+      "id": "10018",
+      "key": "TITP-14",
+      "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10018"
+    }
+  },
+  "recordedAt": "2026-07-08T12:40:48.290Z"
+}

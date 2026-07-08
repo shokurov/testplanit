@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { JiraAdapter } from "../JiraAdapter";
 import type { AuthenticationData } from "../IssueAdapter";
 import { installRecorder, type Recorder } from "./recorder";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { loadEnvFile } from "./loadEnvFile";
 import { Buffer } from "node:buffer";
 
 /**
@@ -47,35 +46,6 @@ import { Buffer } from "node:buffer";
  * Tests create real issues and delete them in teardown.
  */
 
-// Load env from a gitignored .jira-it.env at the monorepo root, if present,
-// so `pnpm test:jira-contract` works without exporting vars manually.
-function loadEnvFile() {
-  const candidates = [
-    resolve(__dirname, "../../../../../.jira-it.env"),
-    resolve(__dirname, "../../../../.jira-it.env"),
-    resolve(process.cwd(), ".jira-it.env"),
-  ];
-  for (const p of candidates) {
-    try {
-      const text = readFileSync(p, "utf8");
-      // Split on \r?\n, not just \n: a CRLF file (the common case when the
-      // .env is created on Windows) otherwise leaves a trailing \r on every
-      // line. JS regex `.` treats \r as a line terminator, so `(.*)$`
-      // without the /m flag can never reach it — the match silently fails
-      // for every line, no env vars get set, and the suite skips with 0
-      // tests instead of erroring, which is exactly what happened here.
-      for (const line of text.split(/\r?\n/)) {
-        const m = line.match(/^([A-Z_][A-Z0-9_]*)=(.*)$/);
-        if (m && !(m[1] in process.env)) {
-          process.env[m[1]] = m[2];
-        }
-      }
-      return;
-    } catch {
-      /* try next */
-    }
-  }
-}
 loadEnvFile();
 
 const BASE_URL = process.env.JIRA_IT_BASE_URL;
@@ -130,7 +100,7 @@ describe.skipIf(!RUN)("Jira DC live contract", () => {
   const createdKeys: string[] = [];
 
   beforeEach(() => {
-    recorder = installRecorder();
+    recorder = installRecorder("jira-dc");
   });
 
   afterEach(async () => {

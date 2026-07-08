@@ -1,0 +1,26 @@
+{
+  "name": "call-001",
+  "request": {
+    "method": "GET",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/issue/picker?currentJQL=&showSubTasks=false&showSubTaskParent=false",
+    "headers": {
+      "Authorization": "<redacted>",
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "sections": [
+        {
+          "label": "History Search",
+          "id": "hs",
+          "msg": "No matching issues found",
+          "issues": []
+        }
+      ]
+    }
+  },
+  "recordedAt": "2026-07-08T12:41:13.556Z"
+}

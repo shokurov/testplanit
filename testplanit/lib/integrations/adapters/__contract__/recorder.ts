@@ -3,11 +3,14 @@ import { join, resolve } from "node:path";
 import { expect } from "vitest";
 
 /**
- * Recording fetch wrapper for the Jira DC contract suite.
+ * Recording fetch wrapper shared by the Jira DC and Jira Cloud contract
+ * suites.
  *
  * Wraps `globalThis.fetch` and, when recording is enabled, writes one
  * fixture file per recorded request/response pair to
- * `__fixtures__/jira-dc/<slugified-test-name>/<name>.json`. Fixtures
+ * `__fixtures__/<fixturesSubdir>/<slugified-test-name>/<name>.json`
+ * (`fixturesSubdir` is `"jira-dc"` or `"jira-cloud"`, passed by the
+ * caller so each suite's recordings land in its own tree). Fixtures
  * contain: method, url, request headers (secrets redacted), request body,
  * status, and response body. Secrets (Authorization, PAT, password) are
  * redacted in both headers and bodies before anything is written to disk.
@@ -49,11 +52,7 @@ interface RecordedFixture {
   recordedAt: string;
 }
 
-const FIXTURES_DIR = resolve(
-  __dirname,
-  "__fixtures__",
-  "jira-dc"
-);
+const FIXTURES_ROOT = resolve(__dirname, "__fixtures__");
 
 // Patterns whose values must never reach disk.
 const SECRET_HEADER_NAMES = new Set([
@@ -126,7 +125,7 @@ function slugify(name: string): string {
   return slug || "unnamed-test";
 }
 
-export function installRecorder(): Recorder {
+export function installRecorder(fixturesSubdir: "jira-dc" | "jira-cloud"): Recorder {
   const realFetch = globalThis.fetch;
   const recorded: RecordedFixture[] = [];
   let counter = 0;
@@ -208,7 +207,7 @@ export function installRecorder(): Recorder {
     stop: () => {
       globalThis.fetch = realFetch;
       if (process.env.JIRA_IT_RECORD !== "1") return;
-      const dir = join(FIXTURES_DIR, slug);
+      const dir = join(FIXTURES_ROOT, fixturesSubdir, slug);
       mkdirSync(dir, { recursive: true });
       for (const fx of recorded) {
         const file = join(dir, `${fx.name}.json`);

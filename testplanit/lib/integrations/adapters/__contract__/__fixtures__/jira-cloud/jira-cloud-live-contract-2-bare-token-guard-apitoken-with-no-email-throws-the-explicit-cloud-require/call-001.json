@@ -1,0 +1,19 @@
+{
+  "name": "call-001",
+  "request": {
+    "method": "GET",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/myself",
+    "headers": {
+      "Authorization": "<redacted>",
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 403,
+    "statusText": "Forbidden",
+    "body": {
+      "error": "Failed to parse Connect Session Auth Token"
+    }
+  },
+  "recordedAt": "2026-07-08T12:40:36.435Z"
+}

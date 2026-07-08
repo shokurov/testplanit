@@ -1,0 +1,117 @@
+{
+  "name": "call-001",
+  "request": {
+    "method": "GET",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/project/TITP",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "expand": "description,lead,issueTypes,url,projectKeys,permissions,insight",
+      "self": "https://testplanit-integration.atlassian.net/rest/api/3/project/10001",
+      "id": "10001",
+      "key": "TITP",
+      "description": "",
+      "lead": {
+        "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020:5c37847d-60df-4b07-a27e-88da226ce263",
+        "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+        "avatarUrls": {
+          "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+          "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+          "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+          "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+        },
+        "displayName": "Egor Shokurov",
+        "active": true
+      },
+      "components": [],
+      "issueTypes": [
+        {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10006",
+          "id": "10006",
+          "description": "An improvement or enhancement to an existing feature or task.",
+          "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10310?size=medium",
+          "name": "Improvement",
+          "subtask": false,
+          "avatarId": 10310,
+          "hierarchyLevel": 0
+        },
+        {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+          "id": "10007",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10008",
+          "id": "10008",
+          "description": "A small piece of work that's part of a larger task.",
+          "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10316?size=medium",
+          "name": "Sub-task",
+          "subtask": true,
+          "avatarId": 10316,
+          "hierarchyLevel": -1
+        },
+        {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10009",
+          "id": "10009",
+          "description": "A new feature of the product, which has yet to be developed.",
+          "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10311?size=medium",
+          "name": "New Feature",
+          "subtask": false,
+          "avatarId": 10311,
+          "hierarchyLevel": 0
+        },
+        {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10010",
+          "id": "10010",
+          "description": "A problem or error.",
+          "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10000",
+          "id": "10000",
+          "description": "A big user story that needs to be broken down. Created by Jira Software - do not edit or delete.",
+          "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/issuetypes/epic.svg",
+          "name": "Epic",
+          "subtask": false,
+          "hierarchyLevel": 1
+        }
+      ],
+      "assigneeType": "UNASSIGNED",
+      "versions": [],
+      "name": "TITP",
+      "roles": {
+        "atlassian-addons-project-access": "https://testplanit-integration.atlassian.net/rest/api/3/project/10001/role/10003",
+        "jira-guest-member": "https://testplanit-integration.atlassian.net/rest/api/3/project/10001/role/10009",
+        "Administrators": "https://testplanit-integration.atlassian.net/rest/api/3/project/10001/role/10002"
+      },
+      "avatarUrls": {
+        "48x48": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417",
+        "24x24": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=small",
+        "16x16": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=xsmall",
+        "32x32": "https://testplanit-integration.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10417?size=medium"
+      },
+      "projectTypeKey": "software",
+      "simplified": false,
+      "style": "classic",
+      "isPrivate": false,
+      "properties": {}
+    }
+  },
+  "recordedAt": "2026-07-08T12:40:38.676Z"
+}

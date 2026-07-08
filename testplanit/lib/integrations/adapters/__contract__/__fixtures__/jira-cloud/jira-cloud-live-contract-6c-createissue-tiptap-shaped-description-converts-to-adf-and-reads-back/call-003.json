@@ -1,0 +1,145 @@
+{
+  "name": "call-003",
+  "request": {
+    "method": "GET",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/issue/TITP-13?fields=summary%2Cdescription%2Cstatus%2Cpriority%2Cissuetype%2Cassignee%2Creporter%2Clabels%2Ccreated%2Cupdated&expand=names%2Cschema",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    }
+  },
+  "response": {
+    "status": 200,
+    "statusText": "OK",
+    "body": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "10017",
+      "self": "https://testplanit-integration.atlassian.net/rest/api/3/issue/10017",
+      "key": "TITP-13",
+      "names": {
+        "summary": "Summary",
+        "issuetype": "Issue Type",
+        "created": "Created",
+        "description": "Description",
+        "reporter": "Reporter",
+        "assignee": "Assignee",
+        "priority": "Priority",
+        "updated": "Updated",
+        "status": "Status",
+        "labels": "Labels"
+      },
+      "schema": {
+        "summary": {
+          "type": "string",
+          "system": "summary"
+        },
+        "issuetype": {
+          "type": "issuetype",
+          "system": "issuetype"
+        },
+        "created": {
+          "type": "datetime",
+          "system": "created"
+        },
+        "description": {
+          "type": "string",
+          "system": "description"
+        },
+        "reporter": {
+          "type": "user",
+          "system": "reporter"
+        },
+        "assignee": {
+          "type": "user",
+          "system": "assignee"
+        },
+        "priority": {
+          "type": "priority",
+          "system": "priority"
+        },
+        "updated": {
+          "type": "datetime",
+          "system": "updated"
+        },
+        "status": {
+          "type": "status",
+          "system": "status"
+        },
+        "labels": {
+          "type": "array",
+          "items": "string",
+          "system": "labels"
+        }
+      },
+      "fields": {
+        "summary": "IT contract: TipTap description",
+        "issuetype": {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/issuetype/10007",
+          "id": "10007",
+          "description": "A small, distinct piece of work.",
+          "iconUrl": "https://testplanit-integration.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=medium",
+          "name": "Task",
+          "subtask": false,
+          "avatarId": 10318,
+          "hierarchyLevel": 0
+        },
+        "created": "2026-07-08T17:40:46.113+0500",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "tiptap body"
+                }
+              ]
+            }
+          ]
+        },
+        "reporter": {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/user?accountId=712020%3A5c37847d-60df-4b07-a27e-88da226ce263",
+          "accountId": "712020:5c37847d-60df-4b07-a27e-88da226ce263",
+          "emailAddress": "egors@etlkit.org",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+            "24x24": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+            "16x16": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png",
+            "32x32": "https://secure.gravatar.com/avatar/b6d90243aaa0ffbd9b1b9dbd2174de17?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FES-5.png"
+          },
+          "displayName": "Egor Shokurov",
+          "active": true,
+          "timeZone": "Asia/Qyzylorda",
+          "accountType": "atlassian"
+        },
+        "assignee": null,
+        "priority": {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/priority/3",
+          "iconUrl": "https://testplanit-integration.atlassian.net/images/icons/priorities/medium_new.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "updated": "2026-07-08T17:40:46.212+0500",
+        "status": {
+          "self": "https://testplanit-integration.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://testplanit-integration.atlassian.net/",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://testplanit-integration.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": []
+      }
+    }
+  },
+  "recordedAt": "2026-07-08T12:40:46.006Z"
+}

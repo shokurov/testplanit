@@ -1,0 +1,23 @@
+{
+  "name": "call-008",
+  "request": {
+    "method": "POST",
+    "url": "https://testplanit-integration.atlassian.net/rest/api/3/issue/TITP-17/transitions",
+    "headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "transition": {
+        "id": "21"
+      }
+    }
+  },
+  "response": {
+    "status": 204,
+    "statusText": "No Content",
+    "body": ""
+  },
+  "recordedAt": "2026-07-08T12:40:59.944Z"
+}
