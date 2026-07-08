@@ -2398,4 +2398,188 @@ describe("JiraAdapter Data Center / Server", () => {
     expect(res.hasMore).toBe(false);
     expect(res.nextPageToken).toBeUndefined();
   });
+
+  // Below: Phase C mock tightening for the 4 endpoints that only had
+  // Cloud-shaped hand-written mocks (see JiraAdapter.test.ts's top-level
+  // "getProjects"/"getIssueTypes"/"searchUsers" describes). Request URLs and
+  // response bodies match live recordings under
+  // __fixtures__/jira-dc/jira-dc-live-contract-pat-bearer-{3,4,8,11}-*/
+  // (project key/IDs trimmed for readability; shapes are unchanged).
+
+  it("getProjects: uses GET /project (bare array, not /project/search) on Data Center", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    // Bare array, no `{ values }` wrapper — matches a live GET
+    // /rest/api/2/project recording against jira.rapidsoft.ru.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          {
+            id: "12881",
+            key: "TITP",
+            name: "TestPlanIt Integration Test project",
+            projectTypeKey: "software",
+          },
+          {
+            id: "10145",
+            key: "SUPPORT",
+            name: "Техническая поддержка",
+            projectTypeKey: "software",
+          },
+        ]),
+    });
+
+    const projects = await adapter.getProjects();
+
+    const call = mockFetch.mock.calls.find(
+      (c: any[]) =>
+        typeof c[0] === "string" && c[0].endsWith("/rest/api/2/project")
+    );
+    expect(call).toBeTruthy();
+    expect(call![0]).not.toContain("/project/search");
+    expect(projects).toEqual([
+      { id: "12881", key: "TITP", name: "TestPlanIt Integration Test project" },
+      { id: "10145", key: "SUPPORT", name: "Техническая поддержка" },
+    ]);
+  });
+
+  it("getIssueTypes: reads project.issueTypes from GET /project/{key} on Data Center, subtasks included", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    // Matches a live GET /rest/api/2/project/TITP recording: issue types
+    // live under `project.issueTypes`, unfiltered — only the /issuetype
+    // fallback path (project lookup failure) drops subtasks.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          key: "TITP",
+          issueTypes: [
+            { id: "3", name: "Task", subtask: false },
+            { id: "15", name: "Sub-task", subtask: true },
+            { id: "1", name: "Bug", subtask: false },
+          ],
+        }),
+    });
+
+    const types = await adapter.getIssueTypes("TITP");
+
+    const call = mockFetch.mock.calls.find(
+      (c: any[]) =>
+        typeof c[0] === "string" && c[0].endsWith("/rest/api/2/project/TITP")
+    );
+    expect(call).toBeTruthy();
+    expect(types).toEqual([
+      { id: "3", name: "Task" },
+      { id: "15", name: "Sub-task" },
+      { id: "1", name: "Bug" },
+    ]);
+  });
+
+  it("searchUsers: uses ?username= (not ?query=) on Data Center and ids users by name", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    // Bare array with name/key (no accountId) — matches a live GET
+    // /rest/api/2/user/search?username=... recording.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve([
+          {
+            key: "JIRAUSER16307",
+            name: "testplanit",
+            emailAddress: "testplanit@rapidsoft.ru",
+            displayName: "TestPlanIt",
+          },
+        ]),
+    });
+
+    const result = await adapter.searchUsers("testplanit");
+
+    const call = mockFetch.mock.calls.find(
+      (c: any[]) =>
+        typeof c[0] === "string" && c[0].includes("/rest/api/2/user/search?")
+    );
+    expect(call).toBeTruthy();
+    expect(call![0]).toContain("username=testplanit");
+    expect(call![0]).not.toContain("query=");
+    expect(result).toEqual({
+      users: [
+        {
+          accountId: "testplanit",
+          displayName: "TestPlanIt",
+          emailAddress: "testplanit@rapidsoft.ru",
+          avatarUrls: undefined,
+        },
+      ],
+      total: 1,
+    });
+  });
+
+  it("addComment: sends a plain-string body (not ADF) on Data Center", async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ name: "alice" }),
+    });
+    await adapter.authenticate({
+      type: "api_key",
+      username: "alice",
+      password: "secret",
+      baseUrl: "https://jira.mycompany.domain",
+    });
+
+    // 201 with the created comment — matches a live POST
+    // /rest/api/2/issue/{key}/comment recording.
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 201,
+      json: () =>
+        Promise.resolve({
+          id: "619041",
+          body: "contract comment",
+          author: { name: "testplanit", displayName: "TestPlanIt" },
+        }),
+    });
+
+    await (adapter as any).addComment("DC-1", "contract comment");
+
+    const call = mockFetch.mock.calls.find(
+      (c: any[]) =>
+        typeof c[0] === "string" &&
+        c[0].endsWith("/rest/api/2/issue/DC-1/comment")
+    );
+    expect(call).toBeTruthy();
+    expect((call![1] as any).method).toBe("POST");
+    expect(JSON.parse((call![1] as any).body)).toEqual({
+      body: "contract comment",
+    });
+  });
 });
