@@ -250,6 +250,12 @@ export function contentToString(description: unknown): string {
   return String(description);
 }
 
+/**
+ * Recursively walk ADF/TipTap content nodes and concatenate their text
+ * runs, depth-first. Inserts a newline after each block-level node
+ * (paragraph, heading, codeBlock) so a multi-block document reads back as
+ * separate lines instead of one run-on string.
+ */
 function extractTextFromNodes(nodes: unknown[]): string {
   let text = "";
   for (const node of nodes) {
