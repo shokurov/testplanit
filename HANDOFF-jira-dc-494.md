@@ -105,12 +105,13 @@ auth schemes, and independently re-verified in review:
   per-test fixtures (secret-scanned clean, twice).
 
 Open items, in this iteration's priority order — details in "What to
-do": ~~the contract-suite gating footgun~~ (done, see step 1); **everything
-Cloud** (no Cloud behavior has ever been exercised live); ~~Phase C's
-remaining 4 mock tightenings~~ (done, see step 5); the
+do": ~~the contract-suite gating footgun~~ (done, step 1); ~~E1 Cloud
+sandbox~~ (done, step 2); ~~E2 Cloud contract suite~~ (done, step 3);
+~~Phase C's remaining 4 mock tightenings~~ (done, step 5); **E3 full
+regression** (step 4, the merge gate — not started); the
 `resolveJiraConnection` dedup; smaller quality items.
 
-**Iteration-4 progress so far (2026-07-07, this session):**
+**Iteration-4 progress so far (2026-07-08, this session):**
 - **Step 1 done:** suite now requires `JIRA_IT_RUN=1` (set by
   `test:jira-contract`/`test:jira-contract:record`, both via `cross-env`
   for Windows compatibility); fixture writes require a separate
@@ -123,12 +124,49 @@ remaining 4 mock tightenings~~ (done, see step 5); the
 - **Step 5 done:** `addComment`, `searchUsers`, `getProjects`,
   `getIssueTypes` DC mocks added to `JiraAdapter.test.ts`, request-shape
   + recorded-response-body tightened the same way `createIssue`/
-  `updateIssue` were (fixture paths cited in each test's comment). Full
-  `lib/integrations` suite: 638 passed / 32 skipped, 0 failures.
-- **Blocked on you:** step 2 (E1, Cloud sandbox) is human setup — asked
-  in-session, not yet done as of this writing. Steps 3–4 (E2/E3) and the
-  204 audit (step 7) all need the Cloud sandbox to exist first. Step 6
-  (`resolveJiraConnection` dedup) is deliberately deferred until after E3.
+  `updateIssue` were (fixture paths cited in each test's comment).
+- **Step 2 (E1) done.** Company-managed Cloud project `TITP` (same key
+  as the DC sandbox — different site, no collision) with a required
+  text custom field (`customfield_10043`, "IT Required Field") and a
+  user-picker field (`customfield_10044`, "IT User Picker") on the Task
+  create screen. First attempt landed a **team-managed** project by
+  default (Atlassian's quick-start wizard defaults to team-managed
+  unless you explicitly pick company-managed) — caught live via
+  `GET /project/{key}` (`style: "next-gen"`, `simplified: true`) before
+  any suite code was written against it, recreated correctly
+  (`style: "classic"`).
+- **Step 3 (E2) done.** New `jira-cloud.contract.test.ts`, 16/16 green
+  live against the `TITP` Cloud sandbox. Confirms live, for the first
+  time: assignee `{ accountId }` write lands (`#6d` — the actual point
+  of this phase), transitions/`updateIssue` survive Cloud's 204/empty
+  responses (`#9`), and the bare-token guard error fires correctly
+  (`#2`, worklist #10). `loadEnvFile()` extracted to a shared module;
+  `recorder.ts` now takes a `fixturesSubdir` param instead of a
+  hardcoded `"jira-dc"`. 78 fixture files recorded, secret-scanned
+  clean. Full `lib/integrations` suite: 638 passed / 48 skipped (32 DC +
+  16 Cloud contract tests correctly skipped without `JIRA_IT_RUN`), 0
+  failures.
+  - **Live-discovered gotcha:** the `TITP` Cloud project has a *second*
+    required custom field (`customfield_10041`, pre-existing on the
+    site, not added for this suite) that does not appear at all in
+    `createmeta`'s field list for the Task issue type — yet `POST
+    /issue` still 400s without it. Confirmed via `GET /rest/api/3/field`
+    (which does show its schema) vs. `createmeta` (which omits it
+    entirely). `createmeta` is not a complete picture of what Jira Cloud
+    enforces at creation time; the suite hardcodes both required fields
+    rather than deriving them from `createmeta`. Noted in the test file;
+    not an adapter bug (the adapter doesn't try to auto-discover
+    required fields), but worth knowing if the product's own
+    create-issue form ever relies on `createmeta` to decide what to
+    prompt for.
+- **Next: step 4 (E3), the merge gate.** Not started. Needs: DC suite
+  re-run (should stay 29/29 — no DC-side code changed since), Cloud
+  suite re-run, full unit suite (have it, see above), `tsc --noEmit` +
+  `pnpm lint` clean (blocked on this machine by the Windows zenstack
+  gotcha below — needs either the documented workaround or a CI/Linux
+  run), and a manual test-connection through the real UI against both
+  deployments (needs a working local dev server, which also needs
+  zenstack generated correctly).
 
 ## What to do (order matters)
 
@@ -141,39 +179,34 @@ remaining 4 mock tightenings~~ (done, see step 5); the
    diff; a broad `lib/integrations` sweep now skips the suite instead of
    driving it. This working tree had no accidentally re-recorded fixtures
    to discard (that was specific to the iteration-3 review machine).
-2. **E1 — Cloud sandbox (human setup, ~30 min; coordinate with
-   egors@upbonus.io).** Free Jira Cloud site
-   (https://www.atlassian.com/software/jira/free):
-   - **Company-managed** project (not team-managed — different
-     createmeta/screens model), dedicated to the suite; suggested key
-     `TITC`.
-   - Same shape as the DC sandbox: a **required custom field** and a
-     **user-picker custom field** on the Task create screen.
-   - API token (id.atlassian.com → Security → API tokens) + account
-     email; note the account's `accountId`. Ideally a second user so
-     assignee tests can assign someone other than the reporter.
-   - Add to the gitignored `.jira-it.env`: `JIRA_CLOUD_IT_BASE_URL`,
-     `JIRA_CLOUD_IT_EMAIL`, `JIRA_CLOUD_IT_API_TOKEN`,
-     `JIRA_CLOUD_IT_PROJECT_KEY`.
-3. **E2 — Cloud contract suite.** New
-   `__contract__/jira-cloud.contract.test.ts`, same harness and
-   recorder (fixtures → `__fixtures__/jira-cloud/`), gated on the E1
-   env vars + `JIRA_IT_RUN=1`. Drive the real `JiraAdapter` through the
-   **Cloud column** of the plan's endpoint matrix — the full 12-row
-   checklist with per-row "what must hold" is in the plan's E2 section.
-   The three rows that are the actual point of this phase:
+2. ~~**E1 — Cloud sandbox.**~~ **DONE.** Company-managed project `TITP`
+   on a free Cloud site, required text field (`customfield_10043`) +
+   user-picker field (`customfield_10044`) on the Task create screen.
+   Credentials in the gitignored `.jira-it.env`
+   (`JIRA_CLOUD_IT_BASE_URL`/`EMAIL`/`API_TOKEN`/`PROJECT_KEY`). No
+   second user set up — the `#6d`/`#6e` tests assign to self instead;
+   fine for what they verify (the write shape lands), but note if a
+   future pass wants to test assigning to *someone other than* the
+   reporter specifically.
+3. ~~**E2 — Cloud contract suite.**~~ **DONE.** New
+   `__contract__/jira-cloud.contract.test.ts`, 16/16 green live. All
+   three point-of-phase rows confirmed on real Cloud:
    - **assignee `{ accountId }` write lands and the issue is really
-     assigned** (iteration 3's only unverified behavior change);
+     assigned** (`#6d`) — iteration 3's only unverified behavior change;
    - **transitions/updateIssue survive Cloud's 204/empty responses**
-     (the live-DC-discovered production bug, confirmed on Cloud);
-   - **bare-token → explicit error message** (worklist #10's fix,
-     never exercised against real Cloud).
-4. **E3 — full regression (the merge gate).** One pass, all of: DC
-   suite re-run (both schemes, stays 29/29) + Cloud suite green + full
-   unit suite + `tsc --noEmit` + `pnpm lint` clean + one manual
-   test-connection through the real UI against each deployment
+     (`#9`) — the live-DC-discovered production bug, confirmed on Cloud;
+   - **bare-token → explicit error message** (`#2`, worklist #10's fix,
+     now exercised against real Cloud, not just unit-tested).
+   Fixtures under `__fixtures__/jira-cloud/`; harness shared with the DC
+   suite via `loadEnvFile.ts` and `recorder.ts`'s `fixturesSubdir` param.
+4. **E3 — full regression (the merge gate).** Not started. One pass,
+   all of: DC suite re-run (both schemes, stays 29/29) + Cloud suite
+   green + full unit suite + `tsc --noEmit` + `pnpm lint` clean + one
+   manual test-connection through the real UI against each deployment
    (exercises route + D4 persistence + form fields, which the contract
-   suites bypass).
+   suites bypass). The `tsc`/manual-UI parts need a working local
+   zenstack-generated client — see the Windows gotcha below; judge
+   `tsc` by CI/Linux if that isn't fixed locally first.
 5. ~~**Finish Phase C's remaining mocks.**~~ **DONE.** `addComment`,
    `searchUsers`, `getProjects`, `getIssueTypes` DC tests added to
    `JiraAdapter.test.ts`, asserting request shape (URL/method/body) and
@@ -207,9 +240,9 @@ remaining 4 mock tightenings~~ (done, see step 5); the
 - [x] All 10 worklist items fixed.
 - [x] **Contract suite gated behind `JIRA_IT_RUN`/`JIRA_IT_RECORD`
       opt-ins** (step 1).
-- [ ] **Cloud contract suite green against the E1 sandbox** — assignee
+- [x] **Cloud contract suite green against the E1 sandbox** — assignee
       `{ accountId }`, 204 handling, and the bare-token error confirmed
-      live on Cloud (steps 2–3).
+      live on Cloud (16/16, steps 2–3).
 - [ ] **Full regression pass (E3)** — both suites + unit + tsc + lint +
       manual UI test-connection against both deployments (step 4).
 - [x] DC unit mocks regenerated from fixtures — `createIssue`/
@@ -241,16 +274,20 @@ remaining 4 mock tightenings~~ (done, see step 5); the
   egors@upbonus.io. The sandbox project has a required custom field and
   a user-picker custom field. Tests create real issues; teardown
   deletes them — double-check cleanup after aborted runs.
-- **Cloud sandbox:** to be created in step 2 (E1); credentials also
-  via egors@upbonus.io once it exists.
+- **Cloud sandbox:** https://testplanit-integration.atlassian.net,
+  project `TITP` (company-managed). Credentials via egors@upbonus.io —
+  already in `.jira-it.env` as `JIRA_CLOUD_IT_*`. No second user; `#6d`/
+  `#6e` assign to self.
 - **Running the contract suites:** env vars live in a gitignored
   `.jira-it.env` at the repo root (DC: `JIRA_IT_BASE_URL`,
   `JIRA_IT_PROJECT_KEY`, `JIRA_IT_PAT`, `JIRA_IT_USERNAME`,
-  `JIRA_IT_PASSWORD`; Cloud: the `JIRA_CLOUD_IT_*` set from E1), then
-  `pnpm test:jira-contract` to verify (no fixture writes) or
-  `pnpm test:jira-contract:record` to deliberately re-record (review the
-  fixture diff before committing). Both scripts set `JIRA_IT_RUN=1` via
-  `cross-env`; only the `:record` variant also sets `JIRA_IT_RECORD=1`.
+  `JIRA_IT_PASSWORD`; Cloud: `JIRA_CLOUD_IT_BASE_URL`/`EMAIL`/
+  `API_TOKEN`/`PROJECT_KEY`), then `pnpm test:jira-contract` /
+  `pnpm test:jira-cloud-contract` to verify (no fixture writes) or the
+  `:record` variant of either to deliberately re-record (review the
+  fixture diff before committing). All four scripts set `JIRA_IT_RUN=1`
+  via `cross-env`; only the `:record` variants also set
+  `JIRA_IT_RECORD=1`.
 - **Step 1 landed (2026-07-07):** a bare `pnpm test`/`test:unit`, or any
   scoped vitest run, no longer touches the live instance even with
   `.jira-it.env` present — `JIRA_IT_RUN=1` is required and only the two
