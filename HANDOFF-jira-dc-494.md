@@ -13,13 +13,53 @@ contract suite, and run the full two-deployment regression** — that
 regression is the merge gate. Before touching Cloud: fix the
 contract-suite gating footgun (see step 1 — it bit us during review).
 
-Work continues on branch `fix/jira-datacenter-494` in this repo
-(internal review PR: https://github.com/shokurov/testplanit/pull/1).
-`PLAN-jira-dc-494.md` (same directory) is the authority for design
-(D1–D4) and test strategy (Phases A–E; Phase E is new). Merge into
-**our `main`** only when the Definition of Done below is met; then open
-a fresh, clean PR upstream (TestPlanIt/testplanit) referencing issue
-#494 only. Do not reopen or reference the closed upstream PR #495.
+Work continues on branch `fix/jira-datacenter-494` in this repo. The
+iteration history lived in internal PR #1 (now **closed** — superseded,
+kept as historical record/audit trail: https://github.com/shokurov/testplanit/pull/1).
+Review now happens on **internal PR #2**
+(https://github.com/shokurov/testplanit/pull/2), which carries a clean,
+5-commit cherry-picked series built on branch `release/jira-datacenter-494`
+against a pushed mirror of real `upstream/main` (branch `upstream-main` in
+this fork) — see "Release branch" below. `PLAN-jira-dc-494.md` (same
+directory) is the authority for design (D1–D4) and test strategy (Phases
+A–E). **PR #2 is internal only — do not open anything against the real
+upstream repo (TestPlanIt/testplanit) until explicitly told to.** That
+happens only after PR #2 is reviewed, approved, and merged to our own
+`main`, and full UAT passes. Do not reopen or reference the closed
+upstream PR #495 when that day comes.
+
+## Release branch (`release/jira-datacenter-494`) — internal PR #2
+
+Built 2026-07-08 by cherry-picking the final state of every product file
+touched on `fix/jira-datacenter-494` onto a fresh branch off real
+`upstream/main` (added as a git remote: `upstream` →
+`https://github.com/TestPlanIt/testplanit.git`), reorganized into 5 clean
+commits. Deliberately **excludes** the `__contract__/` live-instance
+contract suite and its ~260 recorded fixture files — see the discussion
+on PR #1 for why: it's a novel pattern (no other adapter in this codebase
+has anything like it), it's tied to this project's specific sandbox
+instances and can't be independently re-verified by an upstream reviewer,
+and it isn't load-bearing for any test in the clean series (the fixtures
+informed how the hand-written unit test mocks were written; nothing reads
+them at runtime). Also excludes `.gitignore`/`package.json`/
+`eslint.config.mjs`/`tsconfig.json` changes — every line touched in those
+four files was contract-suite-specific, so none of it applies once the
+suite itself is excluded.
+
+Caught and fixed one real mistake during construction: `fix/jira-datacenter-494`
+branched from our fork's `main`, which was 5 commits behind real
+`upstream/main` (missing two magic-link/passwordless-auth features). A
+first-pass wholesale `git checkout <branch> -- en-US.json` silently
+reverted those upstream i18n strings; caught by diffing the release
+branch against its actual base (`upstream/main`) rather than against the
+messy source branch, fixed with a dedicated correction commit rather than
+squashing over the mistake.
+
+Verified standalone (not just as part of the messier branch): `pnpm lint`
+(eslint + `tsc --noEmit`) clean, 0 errors; scoped `lib/integrations` +
+`app/api/integrations` suite 722 passed / 3 skipped, 0 failures — run on
+Linux (WSL) since local zenstack generation is broken on this Windows
+machine (see Environment section).
 
 ## Background — how we got here
 
@@ -199,14 +239,24 @@ regression** (step 4, the merge gate — not started); the
      now exercised against real Cloud, not just unit-tested).
    Fixtures under `__fixtures__/jira-cloud/`; harness shared with the DC
    suite via `loadEnvFile.ts` and `recorder.ts`'s `fixturesSubdir` param.
-4. **E3 — full regression (the merge gate).** Not started. One pass,
-   all of: DC suite re-run (both schemes, stays 29/29) + Cloud suite
-   green + full unit suite + `tsc --noEmit` + `pnpm lint` clean + one
-   manual test-connection through the real UI against each deployment
-   (exercises route + D4 persistence + form fields, which the contract
-   suites bypass). The `tsc`/manual-UI parts need a working local
-   zenstack-generated client — see the Windows gotcha below; judge
-   `tsc` by CI/Linux if that isn't fixed locally first.
+4. **E3 — full regression (the merge gate).** Partially done.
+   - [x] DC suite re-run: 29/29, both schemes.
+   - [x] Cloud suite re-run: 16/16.
+   - [x] Full unit suite: 9835 passed / 170 skipped, 3 unrelated
+     failures (missing Elasticsearch env vars in a throwaway WSL clone
+     with no `.env.test` — not a code regression, don't need to chase
+     down for this repo's own suite since the scoped `lib/integrations`
+     run is clean; would need a real `.env.test` to get the full-suite
+     number to 0 failures).
+   - [x] `tsc --noEmit` + `pnpm lint`: clean, 0 errors (via WSL — see
+     the Windows gotcha update below).
+   - [ ] **Manual test-connection through the real UI against each
+     deployment — still not done.** Needs a running local dev server
+     (now achievable via the WSL workaround) plus a reachable database;
+     haven't set that up yet.
+   Note: the numbers above are from the messier `fix/jira-datacenter-494`
+   branch and from the clean `release/jira-datacenter-494` branch
+   (scoped suite only there — see PR #2). Both are green.
 5. ~~**Finish Phase C's remaining mocks.**~~ **DONE.** `addComment`,
    `searchUsers`, `getProjects`, `getIssueTypes` DC tests added to
    `JiraAdapter.test.ts`, asserting request shape (URL/method/body) and
@@ -243,8 +293,11 @@ regression** (step 4, the merge gate — not started); the
 - [x] **Cloud contract suite green against the E1 sandbox** — assignee
       `{ accountId }`, 204 handling, and the bare-token error confirmed
       live on Cloud (16/16, steps 2–3).
-- [ ] **Full regression pass (E3)** — both suites + unit + tsc + lint +
-      manual UI test-connection against both deployments (step 4).
+- [ ] **Full regression pass (E3)** — both suites ✅, unit suite ✅
+      (scoped clean; 3 unrelated full-suite failures need `.env.test`,
+      not a regression), tsc/lint ✅ (via WSL), **manual UI
+      test-connection against both deployments still outstanding**
+      (step 4).
 - [x] DC unit mocks regenerated from fixtures — `createIssue`/
       `updateIssue` (+204 regression test) plus `addComment`/
       `searchUsers`/`getProjects`/`getIssueTypes` (step 5).
@@ -256,16 +309,32 @@ regression** (step 4, the merge gate — not started); the
       `__fixtures__/jira-cloud/`).
 - [x] Docs match actual behavior.
 
-## Upstreaming (after our main)
+## Upstreaming — ⚠️ NOT until explicitly told, after our main + full UAT
 
-- Fresh branch off upstream main, cherry-pick/squash into a clean
-  series (suggested: 1. dialect module + tests, 2. adapter/route fixes,
-  3. form/manager plumbing + docs, 4. contract-suite harness).
-- Fresh PR with its own description; reference issue #494 only — not
-  the closed upstream PR #495 and not our internal PR #1.
-- Note in the PR that behavior was validated against a live Jira DC
-  10.x instance **and a live Jira Cloud site**, with unit fixtures
-  recorded from them.
+**Do not open a PR against the real upstream repo (TestPlanIt/testplanit)
+under any circumstances unless explicitly instructed to in the moment.**
+All PRs right now are internal to this fork. The gate is: PR #2 reviewed
+and approved → merged to our own `main` → full UAT passes → *only then*,
+with explicit go-ahead, open the upstream PR.
+
+- ✅ **Done:** the clean, cherry-picked branch
+  (`release/jira-datacenter-494`, 5 commits, PR #2) — built off a pushed
+  mirror of real `upstream/main` (branch `upstream-main` in this fork),
+  contract-suite harness deliberately excluded (see PR #2's description
+  and the "Release branch" section above for why — narrower than the
+  original 4-part suggestion, which included the harness as its own
+  commit).
+- When the go-ahead comes: push `release/jira-datacenter-494` (or a
+  rebased version of it, if `upstream/main` has moved on by then) as a
+  branch on the real upstream remote, open a fresh PR referencing issue
+  #494 only — not the closed upstream PR #495, not our internal PR #1,
+  not PR #2 (upstream reviewers don't need to know about our internal
+  process).
+- Note in that PR that behavior was validated against a live Jira DC
+  10.x instance **and a live Jira Cloud site** — full detail in our
+  fork's PR #1 (closed, kept as the audit trail) for anyone who wants
+  the receipts, without asking upstream to host or review the raw
+  recordings.
 
 ## Environment / access / gotchas
 
@@ -301,11 +370,35 @@ regression** (step 4, the merge gate — not started); the
   tests 500 with `Cannot read properties of undefined (reading
   'JIRA')`, and a *partially* completed generate leaves ~12 implicit-any
   `tsc` errors in unrelated files (`enhanceWithAudit.ts`,
-  `shared-dataset`/`column-usage`/`automation-candidates` routes). Fix:
-  `$env:NODE_OPTIONS='--max-old-space-size=12288'; npx zenstack
-  generate` — retries needed, it EMFILE-flakes on Windows. Linux CI is
-  unaffected. Judge `tsc` cleanliness by CI or a Linux machine, not a
-  Windows checkout with a half-generated client.
+  `shared-dataset`/`column-usage`/`automation-candidates` routes).
+  **Update (2026-07-08): the documented `$env:NODE_OPTIONS=...; npx
+  zenstack generate` retry-loop workaround no longer reliably works** —
+  4 straight attempts (with and without a larger `UV_THREADPOOL_SIZE`)
+  all failed with the same deterministic `EMFILE: too many open files`
+  on the Zod-schema-generation step, consistently around the same file
+  (`TestRunCaseDataSetSnapshot*`). The schema has likely grown enough
+  since that workaround was written that it's no longer just occasional
+  flakiness. **What actually works: WSL.** Install Node 22 via `nvm`
+  inside WSL (`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash`,
+  then `nvm install 22`), then **clone a fresh copy of the repo into
+  WSL's own native filesystem** (e.g. `~/testplanit-tsc-check` — do
+  **not** run `pnpm install` against the Windows-mounted `/mnt/c/...`
+  copy; pnpm will want to fully reinstall `node_modules` for Linux,
+  which corrupts the shared directory for the Windows side). From that
+  clean Linux-native clone: `pnpm install`, then `pnpm exec zenstack
+  format && pnpm exec zenstack generate && node
+  scripts/fix-zenstack-symlink.js` completes with zero EMFILE issues —
+  confirming this really is Windows/WSL-mount-specific, not a schema
+  problem. `pnpm lint` and `pnpm test run` from that same clone give a
+  genuinely clean signal without needing CI. Gotcha: invoking `wsl.exe`
+  from Git Bash mangles literal absolute Unix paths in arguments
+  (MSYS's automatic path conversion) — prefix commands with
+  `MSYS_NO_PATHCONV=1`, and prefer writing multi-line scripts to a file
+  and running `wsl -d Ubuntu -- bash /mnt/c/path/to/script.sh` over
+  inline `bash -c '...; ...'` one-liners (semicolon-chained inline
+  commands silently lost variable state across statements in this
+  setup — root cause not fully isolated, but file-based scripts sidestep
+  it entirely).
 - **Audit trail:** iteration-2 audit:
   https://github.com/shokurov/testplanit/pull/1#issuecomment-4893705588
   · iteration-3 report:
