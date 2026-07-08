@@ -105,26 +105,42 @@ auth schemes, and independently re-verified in review:
   per-test fixtures (secret-scanned clean, twice).
 
 Open items, in this iteration's priority order — details in "What to
-do": the contract-suite gating footgun; **everything Cloud** (no Cloud
-behavior has ever been exercised live); Phase C's remaining 4 mock
-tightenings; the `resolveJiraConnection` dedup; smaller quality items.
+do": ~~the contract-suite gating footgun~~ (done, see step 1); **everything
+Cloud** (no Cloud behavior has ever been exercised live); ~~Phase C's
+remaining 4 mock tightenings~~ (done, see step 5); the
+`resolveJiraConnection` dedup; smaller quality items.
+
+**Iteration-4 progress so far (2026-07-07, this session):**
+- **Step 1 done:** suite now requires `JIRA_IT_RUN=1` (set by
+  `test:jira-contract`/`test:jira-contract:record`, both via `cross-env`
+  for Windows compatibility); fixture writes require a separate
+  `JIRA_IT_RECORD=1`. Verified: `pnpm test:jira-contract` still 29/29 live
+  against DC with zero fixture diffs (record flag unset); a broad
+  `vitest run lib/integrations` sweep with `.jira-it.env` present now
+  shows `jira-dc.contract.test.ts (29 tests | 29 skipped)` instead of
+  silently driving the live instance — this is the exact scenario that
+  bit the iteration-3 review.
+- **Step 5 done:** `addComment`, `searchUsers`, `getProjects`,
+  `getIssueTypes` DC mocks added to `JiraAdapter.test.ts`, request-shape
+  + recorded-response-body tightened the same way `createIssue`/
+  `updateIssue` were (fixture paths cited in each test's comment). Full
+  `lib/integrations` suite: 638 passed / 32 skipped, 0 failures.
+- **Blocked on you:** step 2 (E1, Cloud sandbox) is human setup — asked
+  in-session, not yet done as of this writing. Steps 3–4 (E2/E3) and the
+  204 audit (step 7) all need the Cloud sandbox to exist first. Step 6
+  (`resolveJiraConnection` dedup) is deliberately deferred until after E3.
 
 ## What to do (order matters)
 
-1. **Gate the live suite behind explicit opt-ins** (spec: Phase A
-   amendment in the plan). Today, any full/scoped vitest run on a
-   machine with `.jira-it.env` at the repo root silently hits the live
-   Jira (creates/deletes real issues) and re-records all fixtures —
-   this actually happened during review. Required behavior:
-   - suite runs only with `JIRA_IT_RUN=1` (the `test:jira-contract`
-     script sets it; bare `pnpm test` never runs live, env file or not);
-   - fixtures are (re)written only with `JIRA_IT_RECORD=1` — a normal
-     contract run verifies without touching `__fixtures__/`.
-   Note: the review machine's working tree may still have the 184
-   accidentally re-recorded fixture files uncommitted (diffs are
-   timestamps/issue keys only) — discard them (`git checkout --
-   testplanit/lib/integrations/adapters/__contract__/__fixtures__/`)
-   or re-record deliberately once gating is in, and review that diff.
+1. ~~**Gate the live suite behind explicit opt-ins**~~ **DONE.** Suite
+   runs only with `JIRA_IT_RUN=1` (`test:jira-contract` sets it via
+   `cross-env`; bare `pnpm test`/`test:unit` never run live, env file or
+   not). Fixtures are (re)written only with `JIRA_IT_RECORD=1`, via a new
+   `test:jira-contract:record` script — a normal contract run verifies
+   without touching `__fixtures__/`. Verified live: 29/29 with no fixture
+   diff; a broad `lib/integrations` sweep now skips the suite instead of
+   driving it. This working tree had no accidentally re-recorded fixtures
+   to discard (that was specific to the iteration-3 review machine).
 2. **E1 — Cloud sandbox (human setup, ~30 min; coordinate with
    egors@upbonus.io).** Free Jira Cloud site
    (https://www.atlassian.com/software/jira/free):
@@ -158,11 +174,13 @@ tightenings; the `resolveJiraConnection` dedup; smaller quality items.
    test-connection through the real UI against each deployment
    (exercises route + D4 persistence + form fields, which the contract
    suites bypass).
-5. **Finish Phase C's remaining mocks.** `addComment`, `searchUsers`,
-   `getProjects`, `getIssueTypes` have per-test recordings under
-   `__fixtures__/jira-dc/` but their unit-test mocks were never
-   tightened against them (assert request shape, use recorded response
-   bodies) — same treatment `createIssue`/`updateIssue` already got.
+5. ~~**Finish Phase C's remaining mocks.**~~ **DONE.** `addComment`,
+   `searchUsers`, `getProjects`, `getIssueTypes` DC tests added to
+   `JiraAdapter.test.ts`, asserting request shape (URL/method/body) and
+   using response bodies drawn from the recorded fixtures under
+   `__fixtures__/jira-dc/jira-dc-live-contract-pat-bearer-{3,4,8,11}-*/`
+   — same treatment `createIssue`/`updateIssue` already got. Full
+   `lib/integrations` suite: 638 passed / 32 skipped, 0 failures.
 6. **Cleanup: extract `resolveJiraConnection`.**
    `JiraAdapter.performAuthentication` and the route's
    `testJiraConnection` still carry two divergent ~60-line copies of
@@ -187,16 +205,16 @@ tightenings; the `resolveJiraConnection` dedup; smaller quality items.
       credential shapes (29/29 — author twice, review once).
 - [x] Documented DC Basic flow works exactly as documented.
 - [x] All 10 worklist items fixed.
-- [ ] **Contract suite gated behind `JIRA_IT_RUN`/`JIRA_IT_RECORD`
+- [x] **Contract suite gated behind `JIRA_IT_RUN`/`JIRA_IT_RECORD`
       opt-ins** (step 1).
 - [ ] **Cloud contract suite green against the E1 sandbox** — assignee
       `{ accountId }`, 204 handling, and the bare-token error confirmed
       live on Cloud (steps 2–3).
 - [ ] **Full regression pass (E3)** — both suites + unit + tsc + lint +
       manual UI test-connection against both deployments (step 4).
-- [ ] DC unit mocks regenerated from fixtures — done for
-      `createIssue`/`updateIssue` (+204 regression test); 4 endpoints
-      remaining (step 5).
+- [x] DC unit mocks regenerated from fixtures — `createIssue`/
+      `updateIssue` (+204 regression test) plus `addComment`/
+      `searchUsers`/`getProjects`/`getIssueTypes` (step 5).
 - [ ] Cleanup: one detection state machine (step 6). Rest of the
       cleanup list is done (dead helper wired in, D4 persisted, legacy
       fields dropped).
@@ -229,12 +247,14 @@ tightenings; the `resolveJiraConnection` dedup; smaller quality items.
   `.jira-it.env` at the repo root (DC: `JIRA_IT_BASE_URL`,
   `JIRA_IT_PROJECT_KEY`, `JIRA_IT_PAT`, `JIRA_IT_USERNAME`,
   `JIRA_IT_PASSWORD`; Cloud: the `JIRA_CLOUD_IT_*` set from E1), then
-  `pnpm test:jira-contract`.
-- **⚠ Until step 1 lands:** the mere presence of `.jira-it.env` makes
-  ANY local vitest run that includes `lib/integrations` hit the live
-  instance and re-record all fixtures. Don't run broad local test
-  sweeps on a machine with that file until the gating is in — or
-  temporarily rename the file.
+  `pnpm test:jira-contract` to verify (no fixture writes) or
+  `pnpm test:jira-contract:record` to deliberately re-record (review the
+  fixture diff before committing). Both scripts set `JIRA_IT_RUN=1` via
+  `cross-env`; only the `:record` variant also sets `JIRA_IT_RECORD=1`.
+- **Step 1 landed (2026-07-07):** a bare `pnpm test`/`test:unit`, or any
+  scoped vitest run, no longer touches the live instance even with
+  `.jira-it.env` present — `JIRA_IT_RUN=1` is required and only the two
+  scripts above set it. Broad local sweeps are safe again.
 - **`.jira-it.env` must be LF** (handled either way now, but keep
   `loadEnvFile()` splitting on `/\r?\n/` — a CRLF file used to make the
   suite silently report "0 tests").
