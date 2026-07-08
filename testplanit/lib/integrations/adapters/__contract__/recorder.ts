@@ -5,8 +5,8 @@ import { expect } from "vitest";
 /**
  * Recording fetch wrapper for the Jira DC contract suite.
  *
- * Wraps `globalThis.fetch` and writes one fixture file per recorded
- * request/response pair to
+ * Wraps `globalThis.fetch` and, when recording is enabled, writes one
+ * fixture file per recorded request/response pair to
  * `__fixtures__/jira-dc/<slugified-test-name>/<name>.json`. Fixtures
  * contain: method, url, request headers (secrets redacted), request body,
  * status, and response body. Secrets (Authorization, PAT, password) are
@@ -24,6 +24,12 @@ import { expect } from "vitest";
  * The wrapper is installed per-test via `installRecorder()` and removed in
  * teardown. It does NOT mutate the real fetch semantics — requests still go
  * to the live instance.
+ *
+ * Writing to disk is a separate opt-in from running the suite: `stop()`
+ * only flushes fixtures when `JIRA_IT_RECORD=1` is set. Without it, a
+ * contract run still exercises the live instance and verifies behavior,
+ * but `__fixtures__/` is left untouched — re-recording is a deliberate,
+ * reviewable act, not a side effect of every local run.
  */
 
 interface RecordedFixture {
@@ -201,6 +207,7 @@ export function installRecorder(): Recorder {
     written: [],
     stop: () => {
       globalThis.fetch = realFetch;
+      if (process.env.JIRA_IT_RECORD !== "1") return;
       const dir = join(FIXTURES_DIR, slug);
       mkdirSync(dir, { recursive: true });
       for (const fx of recorded) {

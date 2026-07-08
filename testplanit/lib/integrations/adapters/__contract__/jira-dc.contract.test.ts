@@ -9,9 +9,23 @@ import { Buffer } from "node:buffer";
 /**
  * Live Jira Server / Data Center contract suite.
  *
- * Env-gated: the entire suite is skipped unless `JIRA_IT_BASE_URL` is set,
- * so it never runs in CI. To run locally:
+ * Env-gated behind TWO independent opt-ins so that neither a stray local
+ * test run nor a routine contract run can surprise-mutate the live
+ * instance or the checked-in fixtures:
  *
+ *  - `JIRA_IT_RUN=1` — required to run the suite at all. Without it the
+ *    suite is skipped even if `.jira-it.env` is present and fully
+ *    populated: `pnpm test` / `pnpm test:unit` never touch the live
+ *    instance, only `pnpm test:jira-contract` does (the script sets this).
+ *  - `JIRA_IT_RECORD=1` — required to (re)write fixtures. A normal
+ *    `pnpm test:jira-contract` run drives the live instance and verifies
+ *    behavior without touching `__fixtures__/`; re-recording is a separate,
+ *    deliberate act (`pnpm test:jira-contract:record`) whose diff gets
+ *    reviewed before committing.
+ *
+ * To run locally:
+ *
+ *   JIRA_IT_RUN=1 \
  *   JIRA_IT_BASE_URL=https://jira.mycompany.domain \
  *   JIRA_IT_PROJECT_KEY=TITP \
  *   JIRA_IT_PAT=<pat> \
@@ -19,14 +33,16 @@ import { Buffer } from "node:buffer";
  *   JIRA_IT_PASSWORD=<basic-password> \
  *   pnpm test:jira-contract
  *
- * Or place those vars in a gitignored `.jira-it.env` at the repo root and
- * run `pnpm test:jira-contract` (the script sources it).
+ * Or place the `JIRA_IT_*` vars (all but `JIRA_IT_RUN`/`JIRA_IT_RECORD`,
+ * which are opt-ins the script sets) in a gitignored `.jira-it.env` at the
+ * repo root and run `pnpm test:jira-contract` (the script sources it).
  *
  * The suite drives the REAL `JiraAdapter` against the live instance through
  * every endpoint family in the contract matrix, in both auth schemes (PAT
  * Bearer and Basic username/password). A recording fetch wrapper writes
  * request/response fixtures to `__fixtures__/jira-dc/*.json` (secrets
- * redacted) so Phase C can regenerate unit mocks from recorded reality.
+ * redacted) so Phase C can regenerate unit mocks from recorded reality —
+ * see `JIRA_IT_RECORD` above.
  *
  * Tests create real issues and delete them in teardown.
  */
@@ -68,7 +84,11 @@ const PAT = process.env.JIRA_IT_PAT;
 const USERNAME = process.env.JIRA_IT_USERNAME;
 const PASSWORD = process.env.JIRA_IT_PASSWORD;
 
-const RUN = !!BASE_URL && !!PROJECT_KEY && (!!PAT || (!!USERNAME && !!PASSWORD));
+const RUN =
+  process.env.JIRA_IT_RUN === "1" &&
+  !!BASE_URL &&
+  !!PROJECT_KEY &&
+  (!!PAT || (!!USERNAME && !!PASSWORD));
 
 interface AuthScheme {
   label: string;
