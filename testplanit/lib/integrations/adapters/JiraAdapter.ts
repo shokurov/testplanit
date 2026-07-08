@@ -16,12 +16,12 @@ import {
   JiraAuthCredentials,
   JiraAuthScheme,
   JiraDeploymentType,
-  contentToString,
   mapCustomFieldUserRefs,
   pickUserId,
   resolveAuthScheme,
   userRefField,
 } from "./jiraDeployment";
+import { adfToWikiMarkup } from "./jiraWikiMarkup";
 
 /**
  * Jira integration adapter implementing OAuth authentication
@@ -515,54 +515,9 @@ export class JiraAdapter extends BaseAdapter {
       ? { key: data.projectId } // It's a project key
       : { id: data.projectId }; // It's a project ID
 
-    // Convert description to the format the deployment expects
-    let descriptionField;
-    if (data.description) {
-      if (this.deployment === "server") {
-        // DC REST API v2 expects a plain string, not ADF
-        descriptionField = contentToString(data.description);
-      } else {
-        // Cloud REST API v3 expects ADF (Atlassian Document Format)
-        // Check if description is TipTap JSON
-        if (
-          typeof data.description === "object" &&
-          data.description &&
-          "type" in data.description &&
-          data.description.type === "doc"
-        ) {
-          // Direct TipTap JSON to ADF conversion
-          descriptionField = this.tiptapToAdf(data.description);
-        } else if (
-          typeof data.description === "string" &&
-          data.description.includes("<") &&
-          data.description.includes(">")
-        ) {
-          // HTML string - use HTML to ADF converter
-          descriptionField = this.htmlToAdf(data.description);
-        } else if (typeof data.description === "string") {
-          // Plain text
-          descriptionField = {
-            type: "doc",
-            version: 1,
-            content: [
-              {
-                type: "paragraph",
-                content: [
-                  {
-                    type: "text",
-                    text: data.description,
-                  },
-                ],
-              },
-            ],
-          };
-        }
-      }
-    } else {
-      // DC rejects null description with "Operation value must be a string";
-      // Cloud accepts null (means "no description").
-      descriptionField = this.deployment === "server" ? "" : null;
-    }
+    // Convert the description to the format the deployment expects — Jira
+    // Wiki Markup on Server/DC, ADF on Cloud (see toJiraContent).
+    const descriptionField = this.toJiraContent(data.description);
 
     // Extract reporter from customFields if present
     const { reporter, ...otherCustomFields } = data.customFields || {};
@@ -635,46 +590,8 @@ export class JiraAdapter extends BaseAdapter {
     }
 
     if (data.description !== undefined) {
-      if (this.deployment === "server") {
-        // DC REST API v2 expects a plain string, not ADF
-        updatePayload.fields.description = contentToString(data.description);
-      } else {
-        // Cloud REST API v3 expects ADF
-        // Check if description is TipTap JSON
-        if (
-          typeof data.description === "object" &&
-          data.description &&
-          "type" in data.description &&
-          data.description.type === "doc"
-        ) {
-          // Direct TipTap JSON to ADF conversion
-          updatePayload.fields.description = this.tiptapToAdf(data.description);
-        } else if (
-          typeof data.description === "string" &&
-          data.description.includes("<") &&
-          data.description.includes(">")
-        ) {
-          // HTML string - use HTML to ADF converter
-          updatePayload.fields.description = this.htmlToAdf(data.description);
-        } else if (typeof data.description === "string") {
-          // Plain text
-          updatePayload.fields.description = {
-            type: "doc",
-            version: 1,
-            content: [
-              {
-                type: "paragraph",
-                content: [
-                  {
-                    type: "text",
-                    text: data.description,
-                  },
-                ],
-              },
-            ],
-          };
-        }
-      }
+      // Jira Wiki Markup on Server/DC, ADF on Cloud (see toJiraContent).
+      updatePayload.fields.description = this.toJiraContent(data.description);
     }
 
     if (data.priority !== undefined) {
@@ -718,7 +635,12 @@ export class JiraAdapter extends BaseAdapter {
     const params = new URLSearchParams({
       fields:
         "summary,description,status,priority,issuetype,assignee,reporter,labels,created,updated",
-      expand: "names,schema",
+      // Server/Data Center stores descriptions as Jira Wiki Markup strings;
+      // ask Jira to also return its own rendered HTML (renderedFields) so the
+      // read side can surface formatting instead of raw markup. Cloud returns
+      // ADF and is parsed by adfToHtml, so it doesn't need this.
+      expand:
+        this.deployment === "server" ? "names,schema,renderedFields" : "names,schema",
     });
 
     const response = await this.makeRequest<any>(
@@ -753,9 +675,15 @@ export class JiraAdapter extends BaseAdapter {
   async getIssueComments(issueId: string): Promise<IssueComment[]> {
     try {
       const encodedId = encodeURIComponent(issueId);
-      const response = await this.makeRequest<any>(
-        this.buildUrl(`/rest/api/${this.apiVersion}/issue/${encodedId}/comment`)
-      );
+      // On Server/Data Center, ask Jira to render each comment's wiki-markup
+      // body to HTML (renderedBody) so formatting survives the read — same
+      // reason as getIssue's renderedFields. Cloud bodies are ADF (parsed by
+      // adfToHtml), so it doesn't need the expand.
+      const commentPath =
+        this.deployment === "server"
+          ? `/rest/api/${this.apiVersion}/issue/${encodedId}/comment?expand=renderedBody`
+          : `/rest/api/${this.apiVersion}/issue/${encodedId}/comment`;
+      const response = await this.makeRequest<any>(this.buildUrl(commentPath));
       return this.mapJiraComments(response);
     } catch (error) {
       const status = this.parseStatusFromError(error);
@@ -899,28 +827,13 @@ export class JiraAdapter extends BaseAdapter {
   }
 
   protected async addComment(issueId: string, comment: string): Promise<void> {
-    const body =
-      this.deployment === "server"
-        ? // DC REST API v2 expects a plain string for comment body
-          { body: comment }
-        : // Cloud REST API v3 expects ADF
-          {
-            body: {
-              type: "doc",
-              version: 1,
-              content: [
-                {
-                  type: "paragraph",
-                  content: [
-                    {
-                      type: "text",
-                      text: comment,
-                    },
-                  ],
-                },
-              ],
-            },
-          };
+    // Comment bodies are the same rich-text grammar as descriptions — wiki
+    // markup on Server/DC, ADF on Cloud — so they run through the same
+    // conversion. Today's only caller (linkToTestCase) passes plain text,
+    // which converts to itself on DC and a single ADF paragraph on Cloud;
+    // routing it through toJiraContent keeps comments from being the one
+    // rich-text field locked to plain text if a caller ever sends more.
+    const body = { body: this.toJiraContent(comment) };
 
     await this.makeRequest(
       this.buildUrl(`/rest/api/${this.apiVersion}/issue/${issueId}/comment`),
@@ -990,7 +903,10 @@ export class JiraAdapter extends BaseAdapter {
       id: jiraIssue.id,
       key: jiraIssue.key,
       title: fields.summary,
-      description: this.extractDescription(fields.description),
+      description: this.extractDescription(
+        fields.description,
+        jiraIssue.renderedFields?.description
+      ),
       status: fields.status.name,
       priority: fields.priority?.name,
       issueType: fields.issuetype
@@ -1102,14 +1018,25 @@ export class JiraAdapter extends BaseAdapter {
           c.author?.emailAddress ??
           c.author?.accountId ??
           "Unknown",
-        body: this.extractDescription(c.body) ?? "",
+        body: this.extractDescription(c.body, c.renderedBody) ?? "",
         created: c.created ?? "",
       });
     }
     return out;
   }
 
-  private extractDescription(description: any): string | undefined {
+  private extractDescription(
+    description: any,
+    renderedHtml?: string
+  ): string | undefined {
+    // Server/Data Center returns rich text as Jira Wiki Markup; when the read
+    // asked Jira to render it (renderedFields / renderedBody), prefer that
+    // HTML so formatting survives instead of surfacing raw markup like
+    // "*bold*". Cloud never passes this, so its ADF path below is untouched.
+    if (typeof renderedHtml === "string") {
+      return renderedHtml.trim() || undefined;
+    }
+
     if (!description) return undefined;
 
     // Handle ADF (Atlassian Document Format)
@@ -1442,6 +1369,57 @@ export class JiraAdapter extends BaseAdapter {
     }
 
     return customFields;
+  }
+
+  /**
+   * Convert rich-text content into the shape the deployment stores in a
+   * rich-text field. Used for BOTH issue descriptions and comment bodies —
+   * they share one grammar per deployment, so the conversion lives in one
+   * place rather than being duplicated (or, worse, applied to descriptions
+   * only). Input may be the rich-text editor's TipTap/ADF doc, an HTML
+   * string, or a bare string.
+   *
+   * - Server/Data Center → Jira Wiki Markup (a plain string). TipTap/HTML
+   *   normalize through the same converters Cloud uses, then serialize to
+   *   wiki markup; a bare string is already valid wiki markup and passes
+   *   through unchanged. Empty input yields "" — DC rejects a null value
+   *   ("Operation value must be a string").
+   * - Cloud → an ADF document, or null for empty input (Cloud reads null as
+   *   "no value").
+   */
+  private toJiraContent(input: unknown): any {
+    const isDoc =
+      typeof input === "object" &&
+      input !== null &&
+      (input as { type?: string }).type === "doc";
+    const isHtml =
+      typeof input === "string" &&
+      input.includes("<") &&
+      input.includes(">");
+
+    if (this.deployment === "server") {
+      if (!input) return "";
+      if (isDoc) return adfToWikiMarkup(this.tiptapToAdf(input));
+      if (typeof input === "string") {
+        return isHtml ? adfToWikiMarkup(this.htmlToAdf(input)) : input;
+      }
+      return String(input);
+    }
+
+    // Cloud (ADF)
+    if (!input) return null;
+    if (isDoc) return this.tiptapToAdf(input);
+    if (isHtml) return this.htmlToAdf(input as string);
+    if (typeof input === "string") {
+      return {
+        type: "doc",
+        version: 1,
+        content: [
+          { type: "paragraph", content: [{ type: "text", text: input }] },
+        ],
+      };
+    }
+    return null;
   }
 
   private tiptapToAdf(tiptapJson: any): any {
