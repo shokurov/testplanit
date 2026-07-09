@@ -115,6 +115,15 @@ const buildAllowedDevOrigins = (): string[] => {
 };
 
 const nextConfig: NextConfig = {
+  // Skip the in-build TypeScript pass. Type errors still gate every commit
+  // (precommit -> `pnpm lint` -> `tsc --noEmit`) and CI (`pnpm lint`), so
+  // `next build` re-checking already-checked code only duplicated work:
+  // measured on the current tree, the TS pass was ~80% of the build's wall
+  // time (3m18s -> 36s without it) and its ~5.4 GB checker process pushed
+  // the build's peak memory from ~5.8 GB to ~8.7 GB. Self-hosters building
+  // unmodified releases lose nothing; anyone patching sources can still run
+  // `pnpm type-check`.
+  typescript: { ignoreBuildErrors: true },
   output: "standalone",
   allowedDevOrigins: buildAllowedDevOrigins(),
   turbopack: {

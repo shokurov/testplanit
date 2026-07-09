@@ -16,7 +16,7 @@ Before you begin, ensure you have the following installed:
 
 **System requirements:**
 
-- **RAM:** at least **4 GB free** for `pnpm install` — the post-install step runs ZenStack code generation, which peaks around 2.5 GB. On machines with less memory, add swap space; the generation step will complete (more slowly) instead of being killed. A production `pnpm build` (Next.js) needs substantially more — plan for 8 GB+ or build via the [Docker images](./docker-setup.md), which is the recommended path for production deployments.
+- **RAM:** at least **4 GB free** for `pnpm install` (the post-install ZenStack code generation peaks around 2.5 GB) and about **6 GB free** for a production `pnpm build` (the Next.js/Turbopack build peaks around 5.8 GB across its process tree). On machines with less memory, add swap space; the steps will complete (more slowly) instead of being killed. For production deployments the [Docker images](./docker-setup.md) remain the recommended path.
 
 **Required Services:**
 
