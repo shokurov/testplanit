@@ -91,6 +91,14 @@ jobs:
       - name: Run jira-dc-frontend unit tests
         run: pnpm --filter @testplanit/jira-dc-frontend test
 
+      # Guards the Task-6 extraction: forge-app now consumes @testplanit/jira-panel-ui,
+      # so a breaking change to the shared package must fail the forge-app build/tests too.
+      - name: Run forge-app unit tests
+        run: pnpm --filter @testplanit/forge-app test
+
+      - name: Build forge-app bundles
+        run: pnpm --filter @testplanit/forge-app build
+
   # Builds the Jira Data Center plugin JAR: webpack frontend bundles, then
   # `mvn package` (which also runs the Java unit tests).
   #
