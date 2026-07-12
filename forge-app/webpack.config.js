@@ -7,7 +7,10 @@ const moduleRules = {
   rules: [
     {
       test: /\.(js|jsx)$/,
-      exclude: /node_modules/,
+      include: [
+        path.resolve(__dirname, 'src'),
+        path.resolve(__dirname, '../packages/jira-panel-ui/src'),
+      ],
       use: {
         loader: 'babel-loader',
         options: {
