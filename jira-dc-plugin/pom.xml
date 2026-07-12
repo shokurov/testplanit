@@ -6,7 +6,7 @@
 
   <groupId>io.testplanit</groupId>
   <artifactId>testplanit-jira-dc</artifactId>
-  <version>0.1.3-SNAPSHOT</version>
+  <version>0.1.4-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>TestPlanIt for Jira Data Center</name>
@@ -16,15 +16,28 @@
     <jira.version>10.3.13</jira.version>
     <platform.version>7.0.10</platform.version>
     <amps.version>9.12.5</amps.version>
-    <spring.scanner.version>5.0.2</spring.scanner.version>
+    <!--
+      5.1.0, NOT 5.0.2 (platform-deps-7.0.10.pom's declared compile-time
+      value). Confirmed on jira.rapidsoft.ru (10.3.13) via Manage apps >
+      System apps > "Atlassian Spring Scanner Runtime" > Version: the actual
+      LIVE runtime processor on this instance is 5.1.0. A 5.0.2-generated
+      component index was never being read correctly by it: EVERY
+      constructor-injected type failed (host components AND our own @Named
+      beans alike — only zero-arg PingResource worked), because nothing was
+      ever wired into the bean registry at all, not because of anything
+      wrong with our @Named/@ComponentImport usage.
+    -->
+    <spring.scanner.version>5.1.0</spring.scanner.version>
     <atlassian.plugin.key>io.testplanit.testplanit-jira-dc</atlassian.plugin.key>
     <!--
-      Build and runtime are both Java 17 (Jira 10.3's runtime). spring-scanner
-      is pinned to 5.0.2 to MATCH the version platform 7.0.10 (Jira 10.3) ships
-      as its runtime — see platform-deps-7.0.10.pom. Do NOT bump to a newer
-      scanner (e.g. 6.x): its maven-plugin both requires JDK 21 to run AND emits
-      a component index the 5.0.2 runtime can't read, which makes the plugin
-      install but fail to enable (0 of N modules).
+      Build and runtime are both Java 17 (Jira 10.3's runtime). Do NOT bump
+      spring.scanner.version to a newer major (e.g. 6.x): its maven-plugin
+      requires JDK 21 to run AND emits a component index older runtimes
+      can't read, which makes the plugin install but fail to enable (0 of N
+      modules). Verify any future version change against Manage apps >
+      System apps > "Atlassian Spring Scanner Runtime" on the target
+      instance, not against platform-deps poms alone — they can disagree
+      with what is actually deployed.
     -->
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
