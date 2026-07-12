@@ -8,6 +8,7 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.templaterenderer.TemplateRenderer;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import java.util.Map;
  * to login, non-admins get 403. The REST layer re-checks ADMINISTER on every
  * call, so this page is presentation-only.
  */
+@Named
 public class AdminServlet extends HttpServlet {
 
     private final transient JiraAuthenticationContext authContext;
