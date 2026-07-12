@@ -33,6 +33,10 @@
 
   <web-panel key="testplanit-panel" location="atl.jira.view.issue.right.context" weight="60">
     <label key="testplanit.panel.title"/>
+    <!-- Supplies $issueKey/$issueId to panel.vm. Do NOT rely on $issue being
+         present in the web-panel velocity context: on Jira 10.3 it was not,
+         and the container div rendered with blank data attributes. -->
+    <context-provider class="io.testplanit.jira.web.PanelContextProvider"/>
     <resource name="view" type="velocity" location="templates/panel.vm"/>
     <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition"/>
   </web-panel>

@@ -6,7 +6,7 @@
 
   <groupId>io.testplanit</groupId>
   <artifactId>testplanit-jira-dc</artifactId>
-  <version>0.1.7-SNAPSHOT</version>
+  <version>0.1.8-SNAPSHOT</version>
   <packaging>atlassian-plugin</packaging>
 
   <name>TestPlanIt for Jira Data Center</name>

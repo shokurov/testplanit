@@ -6,9 +6,24 @@ const contextPath = () =>
   window.contextPath ||
   '';
 
+// An unresolved velocity reference renders as literal text ("$issueKey"), a
+// resolved-but-empty one as "". Treat both as absent.
+const cleanAttr = (value) => (value && !value.includes('$') ? value : null);
+
+// Fallback when the container attributes are blank: Jira issue pages expose
+// the current issue key via AJS meta (an `ajs-issue-key` meta tag).
+const metaIssueKey = () => {
+  if (window.AJS && window.AJS.Meta && typeof window.AJS.Meta.get === 'function') {
+    const key = window.AJS.Meta.get('issue-key');
+    if (key) return key;
+  }
+  const meta = document.querySelector('meta[name="ajs-issue-key"]');
+  return (meta && meta.getAttribute('content')) || null;
+};
+
 export const createDcBridge = (container) => {
-  const issueKey = container.dataset.issueKey || null;
-  const issueId = container.dataset.issueId || null;
+  const issueKey = cleanAttr(container.dataset.issueKey) || metaIssueKey();
+  const issueId = cleanAttr(container.dataset.issueId);
 
   return {
     getTestInfo: async () => {

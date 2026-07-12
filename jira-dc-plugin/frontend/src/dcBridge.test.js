@@ -13,12 +13,37 @@ describe('createDcBridge', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     document.documentElement.removeAttribute('data-color-mode');
+    document.querySelectorAll('meta[name="ajs-issue-key"]').forEach((m) => m.remove());
   });
 
   it('reads issue context from the container dataset', () => {
     const bridge = createDcBridge(container);
     expect(bridge.getIssueContext()).toEqual({ issueKey: 'DEMO-1', issueId: '10001' });
+  });
+
+  it('treats unresolved velocity literals as absent and falls back to the AJS meta issue key', () => {
+    container.dataset.issueKey = '$!issueKey';
+    container.dataset.issueId = '$issue.id';
+    const meta = document.createElement('meta');
+    meta.setAttribute('name', 'ajs-issue-key');
+    meta.setAttribute('content', 'META-42');
+    document.head.appendChild(meta);
+
+    const bridge = createDcBridge(container);
+
+    expect(bridge.getIssueContext()).toEqual({ issueKey: 'META-42', issueId: null });
+  });
+
+  it('falls back to AJS.Meta.get when the container attributes are blank', () => {
+    container.dataset.issueKey = '';
+    container.dataset.issueId = '';
+    window.AJS = { Meta: { get: (name) => (name === 'issue-key' ? 'AJS-7' : null) } };
+
+    const bridge = createDcBridge(container);
+
+    expect(bridge.getIssueContext()).toEqual({ issueKey: 'AJS-7', issueId: null });
   });
 
   it('fetches panel data from the plugin REST with the AJS context path', async () => {
