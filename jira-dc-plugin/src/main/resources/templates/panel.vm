@@ -1,4 +1,10 @@
-$webResourceManager.requireResource("io.testplanit.testplanit-jira-dc:panel-resources")
+## Resources are NOT required here via $webResourceManager: the equivalent
+## call in admin.vm silently emitted nothing (variable absent from the
+## template context), so this template does not gamble on the same mechanism.
+## Instead, panel-resources declares <context>jira.view.issue</context> in
+## atlassian-plugin.xml and Jira auto-loads the bundle on every issue view;
+## the bundle itself defers mounting until DOM-ready, so head-vs-body load
+## order does not matter.
 <div id="testplanit-panel"
      data-issue-key="$issue.key"
      data-issue-id="$issue.id"

@@ -17,6 +17,13 @@
   <web-resource key="panel-resources" name="TestPlanIt Panel Resources">
     <resource type="download" name="panel.js" location="frontend/panel.js"/>
     <resource type="download" name="panel.css" location="frontend/panel.css"/>
+    <!-- Auto-load on the issue view. Declarative loading is used instead of
+         $webResourceManager.requireResource(...) in panel.vm — that variable
+         is not reliably present in template contexts (confirmed live for the
+         admin servlet's TemplateRenderer context, where the require silently
+         emitted nothing). The bundle mounts on DOM-ready, so load order is
+         irrelevant. -->
+    <context>jira.view.issue</context>
   </web-resource>
 
   <web-resource key="settings-resources" name="TestPlanIt Settings Resources">

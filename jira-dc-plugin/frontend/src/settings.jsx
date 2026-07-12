@@ -303,9 +303,19 @@ const Settings = () => {
   );
 };
 
-// Initialize the app
-const container = document.getElementById('testplanit-settings-root');
-if (container) {
-  const root = createRoot(container);
-  root.render(<Settings />);
+// Initialize the app. The script tag sits after the root div in admin.vm, but
+// mount on DOM-ready anyway so the bundle also works if it is ever loaded
+// from <head> (e.g. via web-resource batching).
+const mount = () => {
+  const container = document.getElementById('testplanit-settings-root');
+  if (container) {
+    const root = createRoot(container);
+    root.render(<Settings />);
+  }
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', mount);
+} else {
+  mount();
 }

@@ -101,8 +101,20 @@ const DcApp = ({ bridge }) => {
   );
 };
 
-const container = document.getElementById('testplanit-panel');
-if (container) {
-  const bridge = createDcBridge(container);
-  createRoot(container).render(<DcApp bridge={bridge} />);
+// The bundle is auto-loaded on issue views via the web-resource
+// <context>jira.view.issue</context>, which typically executes it in <head>
+// — before the panel's container div exists in the body. Defer mounting to
+// DOM-ready so load order never matters.
+const mount = () => {
+  const container = document.getElementById('testplanit-panel');
+  if (container) {
+    const bridge = createDcBridge(container);
+    createRoot(container).render(<DcApp bridge={bridge} />);
+  }
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', mount);
+} else {
+  mount();
 }
