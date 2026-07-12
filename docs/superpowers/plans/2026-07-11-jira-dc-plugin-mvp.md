@@ -6,7 +6,7 @@
 
 **Architecture:** Java 17 plugin (AMPS/jira-maven-plugin) exposing `/rest/testplanit/1.0` endpoints that proxy the existing TestPlanIt integration API with `X-Forge-Api-Key`; a web-panel renders a container div hydrated by a React bundle built from `packages/jira-panel-ui` (components extracted from `forge-app/src/frontend/app.jsx`) behind a small "bridge" abstraction with Forge and DC implementations.
 
-**Tech Stack:** Java 17, AMPS (jira-maven-plugin) 9.12.5, platform-public-api 7.0.10 BOM, jakarta.ws.rs (REST v2), atlassian-spring-scanner 6.0.2, SAL PluginSettings, JUnit 5 + Mockito; React 19, webpack 5, Babel, Tailwind 4, vitest, pnpm workspace.
+**Tech Stack:** Java 17, AMPS (jira-maven-plugin) 9.12.5, platform-public-api 7.0.10 BOM, jakarta.ws.rs (REST v2), atlassian-spring-scanner **5.0.2** (MUST match the platform's runtime scanner — see the constraint below), SAL PluginSettings, JUnit 5 + Mockito; React 19, webpack 5, Babel, Tailwind 4, vitest, pnpm workspace.
 
 **Spec:** `docs/superpowers/specs/2026-07-11-jira-dc-plugin-mvp-design.md`
 
@@ -14,7 +14,8 @@
 
 - Target **Jira DC 10.3 LTS only** (verify against 10.3.13). REST v2.
 - **CORRECTION (verified empirically during Task 1 — supersedes earlier drafts):** On Platform 7 / Jira 10.3, Maven dependency **coordinates** are `jakarta.*` (`jakarta.ws.rs:jakarta.ws.rs-api:2.1.6`, `jakarta.servlet:jakarta.servlet-api:4.0.4`, `jakarta.inject:jakarta.inject-api:1.0.5`) but the Java **packages inside them are still `javax.*`** (`javax.ws.rs`, `javax.servlet`, `javax.inject`). All Java `import` statements use **`javax.*`**; the `jakarta.*` groupIds stay in the POM. (The package rename to `jakarta.*` lands in a later platform, not 10.3.) Atlassian REST security annotations `com.atlassian.annotations.security.*` (`UnrestrictedAccess`, `LicensedOnly`, `AdminOnly`) are confirmed present and used as-is.
-- **Java: build-time vs runtime.** Plugin bytecode and the Jira runtime are **Java 17** (`maven.compiler.release=17`). But the build **tooling** (Maven + `atlassian-spring-scanner-maven-plugin:6.0.2`) requires **JDK 21 to run** — run Maven under `JAVA_HOME`=JDK 21; it cross-compiles to 17. A JDK-17 Maven fails the spring-scanner goal with `UnsupportedClassVersionError` (class file 65.0).
+- **spring-scanner MUST match the platform runtime = 5.0.2.** Platform 7.0.10 (Jira 10.3) ships spring-scanner runtime **5.0.2** (`platform-deps-7.0.10.pom`); pin `atlassian-spring-scanner-annotation` and `-maven-plugin` to 5.0.2. Using a newer scanner (6.x) is the trap that cost us a live-instance debug cycle: 6.0.2's maven-plugin needs JDK 21 to run AND emits a `META-INF/plugin-components/` index **missing the `component` file**, so the `@Named` beans are never registered, the REST/servlet modules that inject them fail to construct, and the plugin installs but shows **"0 of N modules enabled"**. 5.0.2 emits the correct `component` index and builds on plain **JDK 17** (the Jira 10.3 runtime Java).
+- **Java: build and runtime are both Java 17** (`maven.compiler.release=17`). With scanner 5.0.2 no newer JDK is needed for the build.
 - **Jira 10.3 BOM needs the Jenkins repo.** `jira-bom` pins `commons-httpclient:3.1-jenkins-3`, hosted only at `https://repo.jenkins-ci.org/public/`. The POM must declare that repository (provided-scope transitive; Jira supplies it at runtime, this plugin never compiles against it).
 - **Zero TestPlanIt backend changes.** The plugin calls only: `GET {instance}/version.json`, `GET {instance}/api/integrations/jira/test-connection`, `GET {instance}/api/integrations/jira/test-info?issueKey=&issueId=` — all authenticated with the `X-Forge-Api-Key` header.
 - **forge-app behavior must not change** after the shared-package extraction (same bundles, same UX).
@@ -29,7 +30,7 @@
 
 ### Task 1: Plugin skeleton that builds, installs, and answers a ping
 
-The riskiest assumptions (AMPS 9.12.5 + Jira 10.3.13, platform BOM, REST v2 annotation scanning, spring scanner 6) are validated here before any real code.
+The riskiest assumptions (AMPS 9.12.5 + Jira 10.3.13, platform BOM, REST v2 annotation scanning, spring-scanner 5.0.2 matching the platform runtime) are validated here before any real code.
 
 **Files:**
 - Create: `jira-dc-plugin/pom.xml`
@@ -45,8 +46,8 @@ The riskiest assumptions (AMPS 9.12.5 + Jira 10.3.13, platform BOM, REST v2 anno
 - [ ] **Step 1: Verify toolchain**
 
 Run: `java -version; mvn -version`
-Expected: **JDK 21** (Temurin or similar) and Maven **3.9+**, both on PATH; `mvn -version` must report "Java version: 21". JDK 21 is required at **build time** because `atlassian-spring-scanner-maven-plugin:6.0.2` is compiled for Java 21 (class file 65.0) — a JDK-17 Maven fails that goal with `UnsupportedClassVersionError`. The produced bytecode is still Java 17 via `maven.compiler.release=17` (Jira 10.3 runtime), so JDK 21 is only the tooling JVM.
-If missing: install a JDK 21 (`winget install EclipseAdoptium.Temurin.21.JDK`, or unzip a portable Temurin 21 build and point `JAVA_HOME` at it) and Maven (`winget install Apache.Maven`, or a portable `apache-maven-3.9.x` unzipped and put on PATH). Set `JAVA_HOME` to the JDK 21 directory for every Maven invocation in this plan.
+Expected: **JDK 17** (Temurin or similar) and Maven **3.9+**, both on PATH; `mvn -version` must report "Java version: 17". With spring-scanner pinned to 5.0.2, JDK 17 (the Jira 10.3 runtime Java) builds everything — no newer JDK needed.
+If missing: install a JDK 17 (`winget install EclipseAdoptium.Temurin.17.JDK`, or a portable Temurin 17 unzipped with `JAVA_HOME` pointed at it) and Maven (`winget install Apache.Maven`, or a portable `apache-maven-3.9.x` on PATH). Set `JAVA_HOME` to the JDK 17 for every Maven invocation in this plan.
 
 - [ ] **Step 2: Create `jira-dc-plugin/.gitignore`**
 
@@ -79,7 +80,10 @@ src/main/resources/frontend/
     <jira.version>10.3.13</jira.version>
     <platform.version>7.0.10</platform.version>
     <amps.version>9.12.5</amps.version>
-    <spring.scanner.version>6.0.2</spring.scanner.version>
+    <!-- MUST match the platform runtime (platform 7.0.10 / Jira 10.3 ships 5.0.2).
+         A newer scanner (6.x) builds but emits an index the runtime can't read
+         → plugin installs yet 0 of N modules enable. -->
+    <spring.scanner.version>5.0.2</spring.scanner.version>
     <atlassian.plugin.key>io.testplanit.testplanit-jira-dc</atlassian.plugin.key>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

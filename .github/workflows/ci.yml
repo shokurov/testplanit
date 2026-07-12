@@ -102,9 +102,9 @@ jobs:
   # Builds the Jira Data Center plugin JAR: webpack frontend bundles, then
   # `mvn package` (which also runs the Java unit tests).
   #
-  # NOTE: runs on a GitHub-hosted runner for JDK 21 + Maven. If this org only
+  # NOTE: runs on a GitHub-hosted runner for JDK 17 + Maven. If this org only
   # permits self-hosted runners, change runs-on to a self-hosted label that
-  # has JDK 21 and Maven available.
+  # has JDK 17 and Maven available.
   jira-dc-plugin:
     name: Jira DC plugin
     runs-on: ubuntu-latest
@@ -124,15 +124,13 @@ jobs:
         with:
           node-version: '24'
 
-      # Build tooling requires JDK 21: atlassian-spring-scanner-maven-plugin
-      # 6.0.2 is compiled for Java 21 and fails under a JDK-17 Maven. The
-      # plugin's emitted bytecode still targets Java 17 (see jira-dc-plugin/pom.xml),
-      # which is what the Jira 10.3 runtime actually loads.
-      - name: Setup JDK 21
+      # Java 17 — matches the Jira 10.3 runtime; spring-scanner is pinned to the
+      # platform version (5.0.2), which builds on JDK 17.
+      - name: Setup JDK 17
         uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '17'
 
       - name: Install dependencies
         # Workspace-wide install from the repo root (not `cd testplanit`) —

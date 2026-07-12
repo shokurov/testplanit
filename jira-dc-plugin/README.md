@@ -7,8 +7,7 @@ page. The Data Center counterpart of the Forge app in `../forge-app`.
 ## Requirements
 
 - Jira Data Center 10.3.x (Platform 7)
-- JDK 21 to build (bytecode targets Java 17 for the Jira 10.3 runtime),
-  Maven 3.9+, pnpm (repo workspace)
+- JDK 17 (matches the Jira 10.3 runtime), Maven 3.9+, pnpm (repo workspace)
 - A TestPlanIt instance with a Jira integration API key
   (TestPlanIt: Admin > Integrations > Jira > generate API key)
 
@@ -22,12 +21,11 @@ Frontend bundles are built into `src/main/resources/frontend/` (gitignored)
 by `frontend/` (webpack) and must exist before `mvn package` — the root
 script handles the ordering.
 
-`JAVA_HOME` must point at a JDK 21 (with Maven on `PATH`) to build:
-`atlassian-spring-scanner-maven-plugin` 6.0.2 is compiled for Java 21 and a
-JDK-17 Maven fails its goal with `UnsupportedClassVersionError`. This only
-affects the *build*; the plugin's own bytecode still targets Java 17
-(`maven.compiler.release=17` in `pom.xml`), which is what the Jira 10.3
-runtime actually loads.
+`JAVA_HOME` must point at a JDK 17 (with Maven on `PATH`). `atlassian-spring-scanner`
+is pinned to **5.0.2** to match the runtime that platform 7.0.10 (Jira 10.3) ships
+(`platform-deps-7.0.10.pom`). Do not bump it to 6.x: that build needs JDK 21 *and*
+produces a component index the 5.0.2 runtime can't read, so the plugin installs but
+fails to enable (0 of N modules).
 
 ## Run a dev Jira
 
