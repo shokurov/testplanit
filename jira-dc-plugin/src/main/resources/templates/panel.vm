@@ -1,0 +1,5 @@
+$webResourceManager.requireResource("io.testplanit.testplanit-jira-dc:panel-resources")
+<div id="testplanit-panel"
+     data-issue-key="$issue.key"
+     data-issue-id="$issue.id"
+     data-base-url="$requestContext.baseUrl"></div>

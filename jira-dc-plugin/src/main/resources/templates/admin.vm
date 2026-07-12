@@ -1,0 +1,10 @@
+<html>
+<head>
+    <title>TestPlanIt</title>
+    <meta name="decorator" content="atl.admin"/>
+    $webResourceManager.requireResource("io.testplanit.testplanit-jira-dc:settings-resources")
+</head>
+<body>
+<div id="testplanit-settings-root" data-base-url="$contextPath"></div>
+</body>
+</html>
