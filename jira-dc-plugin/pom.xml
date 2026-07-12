@@ -153,10 +153,32 @@
           </execution>
         </executions>
       </plugin>
+      <!-- Expose the resolved mockito-core jar path as ${org.mockito:mockito-core:jar}
+           so surefire can load Mockito as a proper -javaagent (below). -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.8.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.2</version>
+        <configuration>
+          <!-- Load Mockito 5 as an explicit java agent (its recommended setup on
+               JDK 21): without this, Mockito's inline mock-maker self-attaches and
+               prints a deprecation notice. -Xshare:off silences the CDS "Sharing
+               is only supported..." warning that appears once an agent is attached.
+               Keeps test output pristine across all Mockito-based test tasks. -->
+          <argLine>-javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine>
+        </configuration>
       </plugin>
     </plugins>
   </build>
