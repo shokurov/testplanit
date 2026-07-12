@@ -18,6 +18,13 @@
     <amps.version>9.12.5</amps.version>
     <spring.scanner.version>6.0.2</spring.scanner.version>
     <atlassian.plugin.key>io.testplanit.testplanit-jira-dc</atlassian.plugin.key>
+    <!--
+      Bytecode targets Java 17 (Jira 10.3 runtime). NOTE: the BUILD must still
+      run on JDK 21 — atlassian-spring-scanner-maven-plugin 6.0.2 is compiled
+      for Java 21 (class file 65.0) and a JDK-17 Maven fails its goal with
+      UnsupportedClassVersionError. Set JAVA_HOME to a JDK 21; release=17 keeps
+      the emitted bytecode runtime-compatible with Jira.
+    -->
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
