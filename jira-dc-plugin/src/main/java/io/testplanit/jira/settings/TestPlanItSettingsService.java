@@ -51,7 +51,7 @@ public class TestPlanItSettingsService {
         settings().remove(KEY_API_KEY);
     }
 
-    static String normalizeInstanceUrl(String raw) {
+    public static String normalizeInstanceUrl(String raw) {
         if (raw == null || raw.isBlank()) {
             throw new IllegalArgumentException("Invalid URL format");
         }

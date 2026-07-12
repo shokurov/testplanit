@@ -115,6 +115,21 @@
       <version>3.27.3</version>
       <scope>test</scope>
     </dependency>
+    <!--
+      javax.ws.rs.core.Response.ok()/.status() route through
+      javax.ws.rs.ext.RuntimeDelegate, whose implementation is normally
+      supplied by Jira's OSGi container at runtime. Resource unit tests build
+      real Response objects outside that container, so a RuntimeDelegate
+      provider must be on the test classpath. jersey-common is the smallest
+      artifact that supplies one for the javax.ws.rs 2.1 API this platform
+      version uses (see the jakarta.ws.rs-api note on PingResource).
+    -->
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-common</artifactId>
+      <version>2.41</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
