@@ -79,7 +79,10 @@ const Settings = () => {
 
     try {
       const response = await rest('POST', '/settings/test', { instanceUrl, apiKey });
-      setTestStatus(response);
+      // /settings/test normally returns {success, message}, but the admin/URL
+      // guards in SettingsResource fail via {success:false, error:...} (no
+      // message). Normalize so the failure reason is never rendered blank.
+      setTestStatus({ ...response, message: response.message ?? response.error });
     } catch (err) {
       setTestStatus({
         success: false,
