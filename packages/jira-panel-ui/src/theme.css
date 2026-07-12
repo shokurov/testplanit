@@ -39,16 +39,10 @@
   }
 }
 
-/* Custom styles for TestPlanIt Forge app */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--testplanit-bg);
-  color: var(--testplanit-text);
-}
+/* NOTE: no `body { ... }` rule here on purpose. This file is shared between
+   the Forge app (isolated iframe — may style the whole document) and the
+   Jira DC plugin (injected into Jira's own pages — must NOT touch the host
+   document). The body styling lives in forge-app/src/frontend/app.css. */
 
 .completed-test-run {
   background-color: var(--testplanit-muted-bg);

@@ -1,3 +1,52 @@
-@import 'tailwindcss';
+/* Tailwind WITHOUT preflight — same rationale as panel.css: this stylesheet
+   is injected into a Jira admin page (atl.admin-decorated), and the global
+   preflight reset restyles the entire host document. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
 @source '../../../packages/jira-panel-ui/src';
+@source './';
 @import '@testplanit/jira-panel-ui/src/theme.css';
+
+/* Force the light palette regardless of OS color scheme — see panel.css. */
+:root {
+  --testplanit-bg: #f8fafc;
+  --testplanit-card-bg: #ffffff;
+  --testplanit-text: #1e293b;
+  --testplanit-text-muted: #64748b;
+  --testplanit-border: #e2e8f0;
+  --testplanit-primary: #3b82f6;
+  --testplanit-primary-hover: #2563eb;
+  --testplanit-muted-bg: #f1f5f9;
+  --testplanit-hover-bg: #f8fafc;
+}
+
+/* Scoped mini-preflight — see panel.css for the rationale. */
+:where(#testplanit-settings-root, #testplanit-settings-root *, #testplanit-settings-root *::before, #testplanit-settings-root *::after) {
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--testplanit-border);
+}
+
+:where(#testplanit-settings-root) {
+  color: var(--testplanit-text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+:where(#testplanit-settings-root button) {
+  background-color: transparent;
+  background-image: none;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-align: inherit;
+}
+
+:where(#testplanit-settings-root input, #testplanit-settings-root select, #testplanit-settings-root textarea) {
+  font: inherit;
+  color: inherit;
+  background-color: var(--testplanit-card-bg);
+}
