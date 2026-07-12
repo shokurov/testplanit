@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<atlassian-plugin key="io.testplanit.testplanit-jira-dc" name="TestPlanIt for Jira Data Center" plugins-version="2">
+  <plugin-info>
+    <description>Shows TestPlanIt test cases, runs, and sessions on Jira issues.</description>
+    <version>${project.version}</version>
+    <vendor name="TestPlanIt" url="https://testplanit.com"/>
+    <param name="atlassian-data-center-status">compatible</param>
+    <param name="atlassian-data-center-compatible">true</param>
+  </plugin-info>
+
+  <resource type="i18n" name="i18n" location="i18n.testplanit"/>
+
+  <rest key="testplanit-rest" path="/testplanit" version="1.0">
+    <description>TestPlanIt REST endpoints (panel data proxy and settings).</description>
+  </rest>
+</atlassian-plugin>
