@@ -12,6 +12,7 @@ import io.testplanit.jira.client.ConnectionTestResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("/settings")
 @LicensedOnly
+@Named
 public class SettingsResource {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

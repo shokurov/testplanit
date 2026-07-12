@@ -14,6 +14,7 @@ import io.testplanit.jira.client.HttpResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -29,6 +30,7 @@ import javax.ws.rs.core.Response;
  */
 @Path("/panel")
 @LicensedOnly
+@Named
 public class PanelResource {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
