@@ -1,9 +1,9 @@
 package io.testplanit.jira.rest;
 
 import com.atlassian.annotations.security.LicensedOnly;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.permission.GlobalPermissionKey;
 import com.atlassian.jira.security.GlobalPermissionManager;
-import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +28,13 @@ import javax.ws.rs.core.Response;
  * exposes only whether a key is set. The @LicensedOnly platform annotation is
  * the coarse gate; the authoritative ADMINISTER check is done per request so
  * it is unit-testable.
+ *
+ * JiraAuthenticationContext is read via {@link ComponentAccessor}, not
+ * {@code @ComponentImport} constructor injection: on this platform version,
+ * that combination consistently produced "unsatisfied dependency" (Jersey/
+ * HK2) regardless of {@code @Named} on the consuming class. ComponentAccessor
+ * sidesteps that OSGi/DI wiring entirely. GlobalPermissionManager remains
+ * constructor-injected.
  */
 @Path("/settings")
 @LicensedOnly
@@ -36,17 +43,14 @@ public class SettingsResource {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final JiraAuthenticationContext authContext;
     private final GlobalPermissionManager globalPermissionManager;
     private final TestPlanItSettingsService settings;
     private final TestPlanItClient client;
 
     @Inject
-    public SettingsResource(@ComponentImport JiraAuthenticationContext authContext,
-                            @ComponentImport GlobalPermissionManager globalPermissionManager,
+    public SettingsResource(@ComponentImport GlobalPermissionManager globalPermissionManager,
                             TestPlanItSettingsService settings,
                             TestPlanItClient client) {
-        this.authContext = authContext;
         this.globalPermissionManager = globalPermissionManager;
         this.settings = settings;
         this.client = client;
@@ -125,7 +129,7 @@ public class SettingsResource {
     }
 
     private Response requireAdmin() {
-        ApplicationUser user = authContext.getLoggedInUser();
+        ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
         if (user == null) {
             return failure(401, "Authentication required");
         }

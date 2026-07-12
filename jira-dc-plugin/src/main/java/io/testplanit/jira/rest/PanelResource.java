@@ -1,10 +1,10 @@
 package io.testplanit.jira.rest;
 
 import com.atlassian.annotations.security.LicensedOnly;
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.permission.ProjectPermissions;
-import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -27,6 +27,13 @@ import javax.ws.rs.core.Response;
  * BROWSE permission on the issue; the TestPlanIt call itself is authenticated
  * with the admin-configured API key. Unknown and non-browsable issues both
  * return 404 so issue existence is not leaked.
+ *
+ * JiraAuthenticationContext is read via {@link ComponentAccessor}, not
+ * {@code @ComponentImport} constructor injection: on this platform version,
+ * that combination consistently produced "unsatisfied dependency" (Jersey/
+ * HK2) regardless of {@code @Named} on the consuming class. ComponentAccessor
+ * sidesteps that OSGi/DI wiring entirely. The other host services
+ * (IssueManager, PermissionManager) remain constructor-injected.
  */
 @Path("/panel")
 @LicensedOnly
@@ -35,19 +42,16 @@ public class PanelResource {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final JiraAuthenticationContext authContext;
     private final IssueManager issueManager;
     private final PermissionManager permissionManager;
     private final TestPlanItSettingsService settings;
     private final TestPlanItClient client;
 
     @Inject
-    public PanelResource(@ComponentImport JiraAuthenticationContext authContext,
-                         @ComponentImport IssueManager issueManager,
+    public PanelResource(@ComponentImport IssueManager issueManager,
                          @ComponentImport PermissionManager permissionManager,
                          TestPlanItSettingsService settings,
                          TestPlanItClient client) {
-        this.authContext = authContext;
         this.issueManager = issueManager;
         this.permissionManager = permissionManager;
         this.settings = settings;
@@ -57,7 +61,7 @@ public class PanelResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response get(@QueryParam("issueKey") String issueKey, @QueryParam("issueId") String issueId) {
-        ApplicationUser user = authContext.getLoggedInUser();
+        ApplicationUser user = ComponentAccessor.getJiraAuthenticationContext().getLoggedInUser();
         if (user == null) {
             return error(401, "Authentication required");
         }

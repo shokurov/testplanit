@@ -1,5 +1,6 @@
 package io.testplanit.jira.rest;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.issue.IssueManager;
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.permission.ProjectPermissions;
@@ -10,10 +11,12 @@ import io.testplanit.jira.client.HttpResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
 import javax.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,14 +39,22 @@ class PanelResourceTest {
     @Mock MutableIssue issue;
 
     PanelResource resource;
+    MockedStatic<ComponentAccessor> componentAccessor;
 
     @BeforeEach
     void setUp() {
-        resource = new PanelResource(authContext, issueManager, permissionManager, settings, client);
+        resource = new PanelResource(issueManager, permissionManager, settings, client);
+        componentAccessor = mockStatic(ComponentAccessor.class);
+        componentAccessor.when(ComponentAccessor::getJiraAuthenticationContext).thenReturn(authContext);
         lenient().when(authContext.getLoggedInUser()).thenReturn(user);
         lenient().when(issueManager.getIssueObject("DEMO-1")).thenReturn(issue);
         lenient().when(permissionManager.hasPermission(eq(ProjectPermissions.BROWSE_PROJECTS), eq(issue), any(ApplicationUser.class)))
                 .thenReturn(true);
+    }
+
+    @AfterEach
+    void tearDown() {
+        componentAccessor.close();
     }
 
     @Test

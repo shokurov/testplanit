@@ -1,5 +1,6 @@
 package io.testplanit.jira.rest;
 
+import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.permission.GlobalPermissionKey;
 import com.atlassian.jira.security.GlobalPermissionManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
@@ -8,15 +9,18 @@ import io.testplanit.jira.client.ConnectionTestResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
 import javax.ws.rs.core.Response;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,13 +34,21 @@ class SettingsResourceTest {
     @Mock ApplicationUser admin;
 
     SettingsResource resource;
+    MockedStatic<ComponentAccessor> componentAccessor;
 
     @BeforeEach
     void setUp() {
-        resource = new SettingsResource(authContext, globalPermissionManager, settings, client);
+        resource = new SettingsResource(globalPermissionManager, settings, client);
+        componentAccessor = mockStatic(ComponentAccessor.class);
+        componentAccessor.when(ComponentAccessor::getJiraAuthenticationContext).thenReturn(authContext);
         lenient().when(authContext.getLoggedInUser()).thenReturn(admin);
         lenient().when(globalPermissionManager.hasPermission(GlobalPermissionKey.ADMINISTER, admin))
                 .thenReturn(true);
+    }
+
+    @AfterEach
+    void tearDown() {
+        componentAccessor.close();
     }
 
     @Test
