@@ -16,7 +16,7 @@
     <jira.version>10.3.13</jira.version>
     <platform.version>7.0.10</platform.version>
     <amps.version>9.12.5</amps.version>
-    <spring.scanner.version>6.0.2</spring.scanner.version>
+    <spring.scanner.version>5.0.2</spring.scanner.version>
     <atlassian.plugin.key>io.testplanit.testplanit-jira-dc</atlassian.plugin.key>
     <!--
       Bytecode targets Java 17 (Jira 10.3 runtime). NOTE: the BUILD must still
