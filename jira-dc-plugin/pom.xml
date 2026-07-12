@@ -147,7 +147,18 @@
           <instructions>
             <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
             <Export-Package/>
+            <!--
+              com.atlassian.jira.plugin.webfragment.conditions is listed explicitly:
+              bnd's `*` wildcard only imports packages actually referenced by our
+              COMPILED .class files. atlassian-plugin.xml's <condition class="..."/>
+              is a plain string bnd never sees, so without this line the package is
+              missing from Import-Package and the plugin fails to enable at runtime
+              with ClassNotFoundException / PluginParseException on the web-panel
+              module (confirmed on Jira 10.3.13 — the whole plugin shows "0 of N
+              modules enabled" because one bad module descriptor blocks the rest).
+            -->
             <Import-Package>
+              com.atlassian.jira.plugin.webfragment.conditions,
               org.springframework.osgi.*;resolution:="optional",
               org.eclipse.gemini.blueprint.*;resolution:="optional",
               *
