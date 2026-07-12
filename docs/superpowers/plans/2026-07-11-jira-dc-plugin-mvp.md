@@ -12,7 +12,10 @@
 
 ## Global Constraints
 
-- Target **Jira DC 10.3 LTS only** (verify against 10.3.13). Platform 7: **jakarta** namespaces (`jakarta.ws.rs`, `jakarta.servlet`, `jakarta.inject`), REST v2, Java 17. No javax imports anywhere.
+- Target **Jira DC 10.3 LTS only** (verify against 10.3.13). REST v2.
+- **CORRECTION (verified empirically during Task 1 — supersedes earlier drafts):** On Platform 7 / Jira 10.3, Maven dependency **coordinates** are `jakarta.*` (`jakarta.ws.rs:jakarta.ws.rs-api:2.1.6`, `jakarta.servlet:jakarta.servlet-api:4.0.4`, `jakarta.inject:jakarta.inject-api:1.0.5`) but the Java **packages inside them are still `javax.*`** (`javax.ws.rs`, `javax.servlet`, `javax.inject`). All Java `import` statements use **`javax.*`**; the `jakarta.*` groupIds stay in the POM. (The package rename to `jakarta.*` lands in a later platform, not 10.3.) Atlassian REST security annotations `com.atlassian.annotations.security.*` (`UnrestrictedAccess`, `LicensedOnly`, `AdminOnly`) are confirmed present and used as-is.
+- **Java: build-time vs runtime.** Plugin bytecode and the Jira runtime are **Java 17** (`maven.compiler.release=17`). But the build **tooling** (Maven + `atlassian-spring-scanner-maven-plugin:6.0.2`) requires **JDK 21 to run** — run Maven under `JAVA_HOME`=JDK 21; it cross-compiles to 17. A JDK-17 Maven fails the spring-scanner goal with `UnsupportedClassVersionError` (class file 65.0).
+- **Jira 10.3 BOM needs the Jenkins repo.** `jira-bom` pins `commons-httpclient:3.1-jenkins-3`, hosted only at `https://repo.jenkins-ci.org/public/`. The POM must declare that repository (provided-scope transitive; Jira supplies it at runtime, this plugin never compiles against it).
 - **Zero TestPlanIt backend changes.** The plugin calls only: `GET {instance}/version.json`, `GET {instance}/api/integrations/jira/test-connection`, `GET {instance}/api/integrations/jira/test-info?issueKey=&issueId=` — all authenticated with the `X-Forge-Api-Key` header.
 - **forge-app behavior must not change** after the shared-package extraction (same bundles, same UX).
 - Plugin key everywhere: `io.testplanit.testplanit-jira-dc`. Java base package: `io.testplanit.jira`. PluginSettings keys: `io.testplanit.jira:instanceUrl`, `io.testplanit.jira:apiKey`.
@@ -42,8 +45,8 @@ The riskiest assumptions (AMPS 9.12.5 + Jira 10.3.13, platform BOM, REST v2 anno
 - [ ] **Step 1: Verify toolchain**
 
 Run: `java -version; mvn -version`
-Expected: Java **17.x** (Temurin or similar) and Maven **3.9+**, both on PATH.
-If missing: `winget install EclipseAdoptium.Temurin.17.JDK` and `winget install Apache.Maven`, then reopen the shell and re-check. `mvn -version` must report "Java version: 17".
+Expected: **JDK 21** (Temurin or similar) and Maven **3.9+**, both on PATH; `mvn -version` must report "Java version: 21". JDK 21 is required at **build time** because `atlassian-spring-scanner-maven-plugin:6.0.2` is compiled for Java 21 (class file 65.0) — a JDK-17 Maven fails that goal with `UnsupportedClassVersionError`. The produced bytecode is still Java 17 via `maven.compiler.release=17` (Jira 10.3 runtime), so JDK 21 is only the tooling JVM.
+If missing: install a JDK 21 (`winget install EclipseAdoptium.Temurin.21.JDK`, or unzip a portable Temurin 21 build and point `JAVA_HOME` at it) and Maven (`winget install Apache.Maven`, or a portable `apache-maven-3.9.x` unzipped and put on PATH). Set `JAVA_HOME` to the JDK 21 directory for every Maven invocation in this plan.
 
 - [ ] **Step 2: Create `jira-dc-plugin/.gitignore`**
 
@@ -221,6 +224,16 @@ src/main/resources/frontend/
       <releases><enabled>true</enabled></releases>
       <snapshots><enabled>false</enabled></snapshots>
     </repository>
+    <!-- Jira 10.3's jira-bom pins commons-httpclient:3.1-jenkins-3, published
+         ONLY here (not mirrored by Atlassian). Provided-scope transitive of
+         jira-api; Jira supplies it at runtime, this plugin never compiles
+         against it, but Maven must still resolve the dependency graph. -->
+    <repository>
+      <id>jenkins-public</id>
+      <url>https://repo.jenkins-ci.org/public/</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -280,11 +293,11 @@ testplanit.admin.title=Настройки TestPlanIt
 package io.testplanit.jira.rest;
 
 import com.atlassian.annotations.security.UnrestrictedAccess;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Map;
 
 @Path("/ping")
@@ -472,8 +485,8 @@ package io.testplanit.jira.settings;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+import javax.inject.Inject;
+import javax.inject.Named;
 
 import java.net.URI;
 
@@ -748,7 +761,7 @@ package io.testplanit.jira.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.inject.Named;
+import javax.inject.Named;
 
 import java.io.IOException;
 import java.net.URI;
@@ -893,7 +906,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import io.testplanit.jira.client.HttpResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1063,7 +1076,7 @@ import com.atlassian.jira.user.ApplicationUser;
 import io.testplanit.jira.client.ConnectionTestResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
-import jakarta.ws.rs.core.Response;
+import javax.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1215,13 +1228,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.testplanit.jira.client.HttpResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Read-only proxy for the issue panel. Auth model: logged-in Jira user with
@@ -1342,16 +1355,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.testplanit.jira.client.ConnectionTestResult;
 import io.testplanit.jira.client.TestPlanItClient;
 import io.testplanit.jira.settings.TestPlanItSettingsService;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * Admin-only settings endpoints. The stored API key is write-only: GET
@@ -1533,8 +1546,8 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.templaterenderer.TemplateRenderer;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1629,10 +1642,10 @@ import com.atlassian.jira.user.ApplicationUser;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.auth.LoginUriProvider;
 import com.atlassian.templaterenderer.TemplateRenderer;
-import jakarta.inject.Inject;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.net.URI;
