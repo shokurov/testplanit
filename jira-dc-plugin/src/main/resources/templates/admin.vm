@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>TestPlanIt</title>
+    <meta name="decorator" content="atl.admin"/>
+</head>
+<body>
+<div id="testplanit-settings-root" data-base-url="$contextPath"></div>
+## Direct resource tags instead of $webResourceManager.requireResource(...):
+## the SAL TemplateRenderer's velocity context does not provide
+## $webResourceManager, so the require silently emitted nothing and the page
+## rendered without our bundle (confirmed live: zero settings.js requests in
+## the browser console). The /download/resources/ URLs are served by the
+## plugin system directly and were verified live (HTTP 200). Tags sit after
+## the root div so the script can mount immediately on evaluation.
+<link rel="stylesheet" href="$contextPath/download/resources/io.testplanit.testplanit-jira-dc:settings-resources/settings.css">
+<script src="$contextPath/download/resources/io.testplanit.testplanit-jira-dc:settings-resources/settings.js"></script>
+</body>
+</html>

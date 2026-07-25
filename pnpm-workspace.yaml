@@ -4,6 +4,7 @@ packages:
   - 'forge-app'
   - 'cli'
   - 'packages/*'
+  - 'jira-dc-plugin/frontend'
 
 # Supply-chain cooling-off disabled; pre-merge CI is the supply-chain gate.
 minimumReleaseAge: 0

@@ -1,0 +1,15 @@
+## $issueKey/$issueId come from PanelContextProvider (declared on the
+## web-panel module) — NOT from $issue, which is not reliably present in the
+## web-panel velocity context on Jira 10.3 (confirmed live: both attributes
+## rendered blank). Quiet references ($!) render empty rather than literal
+## text if a value is ever missing; the JS bundle additionally falls back to
+## AJS.Meta('issue-key') when the attributes are blank.
+##
+## Resources are NOT required here via $webResourceManager (variable absent
+## from template contexts — confirmed live for the admin servlet): the
+## panel-resources web-resource declares <context>jira.view.issue</context>
+## and Jira auto-loads the bundle on every issue view; the bundle defers
+## mounting until DOM-ready, so load order does not matter.
+<div id="testplanit-panel"
+     data-issue-key="$!issueKey"
+     data-issue-id="$!issueId"></div>

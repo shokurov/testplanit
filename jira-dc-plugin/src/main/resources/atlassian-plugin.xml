@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<atlassian-plugin key="${atlassian.plugin.key}" name="TestPlanIt for Jira Data Center" plugins-version="2">
+  <plugin-info>
+    <description>Shows TestPlanIt test cases, runs, and sessions on Jira issues.</description>
+    <version>${project.version}</version>
+    <vendor name="TestPlanIt" url="https://testplanit.com"/>
+    <param name="atlassian-data-center-status">compatible</param>
+    <param name="atlassian-data-center-compatible">true</param>
+  </plugin-info>
+
+  <resource type="i18n" name="i18n" location="i18n.testplanit"/>
+
+  <rest key="testplanit-rest" path="/testplanit" version="1.0">
+    <description>TestPlanIt REST endpoints (panel data proxy and settings).</description>
+  </rest>
+
+  <web-resource key="panel-resources" name="TestPlanIt Panel Resources">
+    <resource type="download" name="panel.js" location="frontend/panel.js"/>
+    <resource type="download" name="panel.css" location="frontend/panel.css"/>
+    <!-- Auto-load on the issue view. Declarative loading is used instead of
+         $webResourceManager.requireResource(...) in panel.vm — that variable
+         is not reliably present in template contexts (confirmed live for the
+         admin servlet's TemplateRenderer context, where the require silently
+         emitted nothing). The bundle mounts on DOM-ready, so load order is
+         irrelevant. -->
+    <context>jira.view.issue</context>
+  </web-resource>
+
+  <web-resource key="settings-resources" name="TestPlanIt Settings Resources">
+    <resource type="download" name="settings.js" location="frontend/settings.js"/>
+    <resource type="download" name="settings.css" location="frontend/settings.css"/>
+  </web-resource>
+
+  <web-panel key="testplanit-panel" location="atl.jira.view.issue.right.context" weight="60">
+    <label key="testplanit.panel.title"/>
+    <!-- Supplies $issueKey/$issueId to panel.vm. Do NOT rely on $issue being
+         present in the web-panel velocity context: on Jira 10.3 it was not,
+         and the container div rendered with blank data attributes. -->
+    <context-provider class="io.testplanit.jira.web.PanelContextProvider"/>
+    <resource name="view" type="velocity" location="templates/panel.vm"/>
+    <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition"/>
+  </web-panel>
+
+  <web-section key="testplanit-admin-section" location="admin_plugins_menu" weight="900">
+    <label key="testplanit.admin.section"/>
+  </web-section>
+
+  <web-item key="testplanit-admin-link" section="admin_plugins_menu/testplanit-admin-section" weight="10">
+    <label key="testplanit.admin.title"/>
+    <link linkId="testplanit-admin-link">/plugins/servlet/testplanit/admin</link>
+  </web-item>
+
+  <servlet key="testplanit-admin-servlet" class="io.testplanit.jira.web.AdminServlet">
+    <url-pattern>/testplanit/admin</url-pattern>
+  </servlet>
+</atlassian-plugin>
